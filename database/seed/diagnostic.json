@@ -1,0 +1,374 @@
+{
+ "vocabulary": [
+  {
+   "id": "v1",
+   "level": "A2",
+   "prompt": "I'm hungry. Let's have ___ before the film.",
+   "options": [
+    "a meal",
+    "a mail",
+    "a meat",
+    "a menu"
+   ],
+   "answer": "a meal"
+  },
+  {
+   "id": "v2",
+   "level": "A2",
+   "prompt": "The opposite of 'expensive' is ___.",
+   "options": [
+    "cheap",
+    "poor",
+    "small",
+    "easy"
+   ],
+   "answer": "cheap"
+  },
+  {
+   "id": "v3",
+   "level": "B1",
+   "prompt": "She was ___ to hear that she had passed the exam.",
+   "options": [
+    "relieved",
+    "relaxed",
+    "related",
+    "reduced"
+   ],
+   "answer": "relieved"
+  },
+  {
+   "id": "v4",
+   "level": "B1",
+   "prompt": "We need to ___ a decision by Friday.",
+   "options": [
+    "make",
+    "do",
+    "have",
+    "get"
+   ],
+   "answer": "make"
+  },
+  {
+   "id": "v5",
+   "level": "B2",
+   "prompt": "The new policy had a ___ effect on small businesses, forcing many to close.",
+   "options": [
+    "detrimental",
+    "beneficial",
+    "temporary",
+    "neutral"
+   ],
+   "answer": "detrimental"
+  },
+  {
+   "id": "v6",
+   "level": "B2",
+   "prompt": "Scientists ___ the decline in bee numbers to the use of pesticides.",
+   "options": [
+    "attribute",
+    "contribute",
+    "distribute",
+    "constitute"
+   ],
+   "answer": "attribute"
+  },
+  {
+   "id": "v7",
+   "level": "C1",
+   "prompt": "Cutting bus services would only ___ the problem of traffic congestion.",
+   "options": [
+    "exacerbate",
+    "alleviate",
+    "facilitate",
+    "mitigate"
+   ],
+   "answer": "exacerbate"
+  },
+  {
+   "id": "v8",
+   "level": "C1",
+   "prompt": "There is ___ evidence that regular exercise improves mood; the results are very convincing.",
+   "options": [
+    "compelling",
+    "anecdotal",
+    "marginal",
+    "obsolete"
+   ],
+   "answer": "compelling"
+  }
+ ],
+ "grammar": [
+  {
+   "id": "g1",
+   "level": "A2",
+   "prompt": "She ___ to work by bus every day.",
+   "options": [
+    "goes",
+    "go",
+    "going",
+    "is go"
+   ],
+   "answer": "goes"
+  },
+  {
+   "id": "g2",
+   "level": "A2",
+   "prompt": "I ___ my keys yesterday.",
+   "options": [
+    "lost",
+    "lose",
+    "have lose",
+    "losing"
+   ],
+   "answer": "lost"
+  },
+  {
+   "id": "g3",
+   "level": "B1",
+   "prompt": "I have lived here ___ 2018.",
+   "options": [
+    "since",
+    "for",
+    "from",
+    "during"
+   ],
+   "answer": "since"
+  },
+  {
+   "id": "g4",
+   "level": "B1",
+   "prompt": "If it rains tomorrow, we ___ at home.",
+   "options": [
+    "will stay",
+    "would stay",
+    "stayed",
+    "stay will"
+   ],
+   "answer": "will stay"
+  },
+  {
+   "id": "g5",
+   "level": "B2",
+   "prompt": "The number of students ___ increased this year.",
+   "options": [
+    "has",
+    "have",
+    "are",
+    "were"
+   ],
+   "answer": "has"
+  },
+  {
+   "id": "g6",
+   "level": "B2",
+   "prompt": "By the time we arrived, the meeting ___.",
+   "options": [
+    "had already started",
+    "has already started",
+    "already starts",
+    "was already start"
+   ],
+   "answer": "had already started"
+  },
+  {
+   "id": "g7",
+   "level": "C1",
+   "prompt": "Not only ___ late, but he also forgot the documents.",
+   "options": [
+    "did he arrive",
+    "he arrived",
+    "he did arrive",
+    "arrived he"
+   ],
+   "answer": "did he arrive"
+  },
+  {
+   "id": "g8",
+   "level": "C1",
+   "prompt": "Had I known about the delay, I ___ a later train.",
+   "options": [
+    "would have taken",
+    "would take",
+    "had taken",
+    "will have taken"
+   ],
+   "answer": "would have taken"
+  }
+ ],
+ "reading": {
+  "title": "The Four-Day Week",
+  "text": "Several companies around the world have experimented with a four-day working week, in which employees work fewer hours for the same salary. In one large trial involving more than sixty organisations, most participating companies reported that productivity stayed the same or improved. Employees said they felt less stressed and had more time for family and exercise.\n\nHowever, the model does not suit every type of business. Hospitals, shops and other services that must be available every day found it harder to organise shifts. Some managers also worried that customers would be unhappy if staff were less available. Supporters argue that careful planning can solve most of these problems, and many companies in the trial decided to continue with the shorter week after it ended.",
+  "questions": [
+   {
+    "id": "r1",
+    "qtype": "true_false_not_given",
+    "prompt": "In the four-day week described, employees receive a lower salary.",
+    "options": [
+     "TRUE",
+     "FALSE",
+     "NOT GIVEN"
+    ],
+    "answer": "FALSE",
+    "level": "B1"
+   },
+   {
+    "id": "r2",
+    "qtype": "true_false_not_given",
+    "prompt": "Most companies in the trial reported that productivity did not fall.",
+    "options": [
+     "TRUE",
+     "FALSE",
+     "NOT GIVEN"
+    ],
+    "answer": "TRUE",
+    "level": "B1"
+   },
+   {
+    "id": "r3",
+    "qtype": "true_false_not_given",
+    "prompt": "The trial took place in only one country.",
+    "options": [
+     "TRUE",
+     "FALSE",
+     "NOT GIVEN"
+    ],
+    "answer": "NOT GIVEN",
+    "level": "B2"
+   },
+   {
+    "id": "r4",
+    "qtype": "multiple_choice",
+    "prompt": "Which businesses found the four-day week harder to organise?",
+    "options": [
+     "A. technology companies",
+     "B. services that must be available every day",
+     "C. small offices",
+     "D. new companies"
+    ],
+    "answer": "B",
+    "level": "B2"
+   },
+   {
+    "id": "r5",
+    "qtype": "sentence_completion",
+    "prompt": "After the trial, many companies decided to ___ with the shorter week. (ONE WORD)",
+    "options": null,
+    "answer": "continue",
+    "accepted": [],
+    "level": "B2"
+   }
+  ]
+ },
+ "listening": {
+  "title": "Booking a Tour",
+  "speakers": [
+   {
+    "id": "A",
+    "name": "Clerk",
+    "role": "tourist office clerk",
+    "gender": "female",
+    "accent": "british"
+   },
+   {
+    "id": "B",
+    "name": "Visitor",
+    "role": "visitor",
+    "gender": "male",
+    "accent": "american"
+   }
+  ],
+  "segments": [
+   {
+    "speaker": "A",
+    "text": "Good afternoon, City Tourist Office. How can I help?"
+   },
+   {
+    "speaker": "B",
+    "text": "Hi, I'd like to book the boat tour for tomorrow, please. For two adults."
+   },
+   {
+    "speaker": "A",
+    "text": "Certainly. There are tours at ten o'clock and at two o'clock. The morning tour is fully booked, I'm afraid."
+   },
+   {
+    "speaker": "B",
+    "text": "Then the afternoon one is fine. How much does it cost?"
+   },
+   {
+    "speaker": "A",
+    "text": "It's eighteen pounds per person. The tour lasts about ninety minutes and leaves from Pier Four, next to the old lighthouse."
+   },
+   {
+    "speaker": "B",
+    "text": "Great. Should we bring anything?"
+   },
+   {
+    "speaker": "A",
+    "text": "A warm jacket is a good idea. It can be windy on the water, even in summer."
+   }
+  ],
+  "questions": [
+   {
+    "id": "l1",
+    "qtype": "multiple_choice",
+    "prompt": "What time will the visitor's tour start?",
+    "options": [
+     "A. 10 o'clock",
+     "B. 2 o'clock",
+     "C. 4 o'clock"
+    ],
+    "answer": "B",
+    "level": "A2"
+   },
+   {
+    "id": "l2",
+    "qtype": "form_completion",
+    "prompt": "Price per person: £___",
+    "options": null,
+    "answer": "18",
+    "accepted": [
+     "eighteen"
+    ],
+    "level": "B1"
+   },
+   {
+    "id": "l3",
+    "qtype": "form_completion",
+    "prompt": "The tour leaves from Pier ___",
+    "options": null,
+    "answer": "4",
+    "accepted": [
+     "four"
+    ],
+    "level": "B1"
+   },
+   {
+    "id": "l4",
+    "qtype": "multiple_choice",
+    "prompt": "What does the clerk suggest bringing?",
+    "options": [
+     "A. an umbrella",
+     "B. a camera",
+     "C. a warm jacket"
+    ],
+    "answer": "C",
+    "level": "B1"
+   }
+  ]
+ },
+ "writing": {
+  "prompt": "Some people think that it is better to live in a big city than in the countryside. What is your opinion? Give reasons and examples.",
+  "min_words": 80,
+  "time_limit_minutes": 12
+ },
+ "speaking": [
+  {
+   "id": "s1",
+   "prompt": "Tell me about your hometown. What do you like about it?"
+  },
+  {
+   "id": "s2",
+   "prompt": "What do you enjoy doing in your free time, and why?"
+  }
+ ]
+}

@@ -1,0 +1,477 @@
+{
+ "article_usage": {
+  "title": "Articles: a, an, the",
+  "rule": "Use a/an the first time you mention a singular countable noun, and 'the' when the listener knows which one you mean. Use no article for general plural or uncountable nouns.",
+  "examples": [
+   [
+    "Unemployment is serious problem.",
+    "Unemployment is a serious problem."
+   ],
+   [
+    "The money is important for everyone.",
+    "Money is important for everyone."
+   ],
+   [
+    "She is an university student.",
+    "She is a university student."
+   ]
+  ],
+  "tip": "Ask: is it countable and singular? Then it needs a, an, the or another determiner (my, this, every).",
+  "question": "Can you write one sentence about your city that uses 'a', one that uses 'the', and one with no article?"
+ },
+ "subject_verb_agreement": {
+  "title": "Subject–verb agreement",
+  "rule": "A singular subject takes a singular verb (is, was, has, -s) and a plural subject takes a plural verb (are, were, have). Watch out for 'people' (plural), 'everyone' (singular) and 'the number of' (singular).",
+  "examples": [
+   [
+    "People has different opinions.",
+    "People have different opinions."
+   ],
+   [
+    "The number of cars are rising.",
+    "The number of cars is rising."
+   ],
+   [
+    "Everyone have a phone.",
+    "Everyone has a phone."
+   ]
+  ],
+  "tip": "Underline the real subject of each sentence, then check the verb. Ignore words between them (e.g. 'one of the students IS').",
+  "question": "Which is correct: 'The news is surprising' or 'The news are surprising'? Why?"
+ },
+ "preposition": {
+  "title": "Prepositions after verbs and adjectives",
+  "rule": "Many verbs and adjectives need a fixed preposition (depend on, interested in, responsible for). Some verbs take no preposition at all (discuss, emphasise, mention).",
+  "examples": [
+   [
+    "It depends of the weather.",
+    "It depends on the weather."
+   ],
+   [
+    "We discussed about the plan.",
+    "We discussed the plan."
+   ],
+   [
+    "In the other hand, ...",
+    "On the other hand, ..."
+   ]
+  ],
+  "tip": "Learn verb + preposition as one chunk, like a single word.",
+  "question": "Complete this sentence in your own words: 'Success depends ___ ...'"
+ },
+ "verb_tense": {
+  "title": "Verb forms and tenses",
+  "rule": "After do/does/did use the base verb. Use the present perfect for actions connecting past and present ('since 2010'), and the past simple for finished times ('in 2010'). After 'look forward to', 'enjoy' and 'avoid', use -ing.",
+  "examples": [
+   [
+    "I didn't went.",
+    "I didn't go."
+   ],
+   [
+    "I am agree.",
+    "I agree."
+   ],
+   [
+    "I look forward to see you.",
+    "I look forward to seeing you."
+   ]
+  ],
+  "tip": "Check every verb after an auxiliary (do, did, can, will): it should be the base form.",
+  "question": "Tell me about something you have done since you started learning English, and something you did last week."
+ },
+ "sentence_structure": {
+  "title": "Complete sentences",
+  "rule": "Every sentence needs a main clause (subject + verb). Clauses starting with because, although or which cannot stand alone. Don't use 'although' and 'but' together.",
+  "examples": [
+   [
+    "Because it is cheap.",
+    "Many people choose it because it is cheap."
+   ],
+   [
+    "Although it is cheap, but it is slow.",
+    "Although it is cheap, it is slow."
+   ]
+  ],
+  "tip": "Read each sentence alone: would it make sense if someone said only that?",
+  "question": "Join these into one sentence: 'I stayed at home. It was raining.'"
+ },
+ "plural_forms": {
+  "title": "Plurals and uncountable nouns",
+  "rule": "Uncountable nouns (information, advice, research, evidence, equipment) have no plural and don't take a/an. Use 'these' with plural nouns and 'fewer' with countable plurals.",
+  "examples": [
+   [
+    "informations",
+    "information"
+   ],
+   [
+    "This problems",
+    "These problems"
+   ],
+   [
+    "less cars",
+    "fewer cars"
+   ]
+  ],
+  "tip": "Say 'a piece of advice' or 'some information' when you need a countable phrase.",
+  "question": "Make a sentence with 'advice' and another with 'suggestions'."
+ },
+ "word_order": {
+  "title": "Word order",
+  "rule": "English usually follows subject + verb + object. Frequency adverbs go before the main verb, and indirect questions use statement order.",
+  "examples": [
+   [
+    "She speaks very well English.",
+    "She speaks English very well."
+   ],
+   [
+    "Can you tell me where is the station?",
+    "Can you tell me where the station is?"
+   ]
+  ],
+  "tip": "Don't put anything between a verb and its object.",
+  "question": "Put 'always' in the right place: 'I drink coffee in the morning.'"
+ },
+ "comparatives": {
+  "title": "Comparatives and superlatives",
+  "rule": "Short adjectives take -er/-est; long adjectives take more/most. Never combine them (more better). Use 'than' (not 'then') in comparisons.",
+  "examples": [
+   [
+    "more better",
+    "better"
+   ],
+   [
+    "higher then",
+    "higher than"
+   ]
+  ],
+  "tip": "If the adjective already ends in -er, don't add 'more'.",
+  "question": "Compare your hometown with a big city using two comparatives."
+ },
+ "modal_verbs": {
+  "title": "Modal verbs",
+  "rule": "Modals (can, should, must, might, will, would) are followed by the base verb without 'to'.",
+  "examples": [
+   [
+    "should to study",
+    "should study"
+   ],
+   [
+    "can helps",
+    "can help"
+   ]
+  ],
+  "tip": "Modal + base verb: no 'to', no -s, no -ed.",
+  "question": "What should governments do about traffic? Use 'should' and 'could'."
+ },
+ "conditionals": {
+  "title": "Conditional sentences",
+  "rule": "First conditional: if + present, will + verb. Second: if + past, would + verb. Third: if + had + past participle, would have + past participle. Don't use 'will' or 'would' in the if-clause.",
+  "examples": [
+   [
+    "If people will recycle...",
+    "If people recycle..."
+   ],
+   [
+    "If I would have money...",
+    "If I had money..."
+   ]
+  ],
+  "tip": "The if-clause never contains 'will' or 'would' in these patterns.",
+  "question": "What would you do if you had a free year?"
+ },
+ "passive_voice": {
+  "title": "The passive voice",
+  "rule": "Form the passive with be + past participle. Use it when the action matters more than who does it - very common in process descriptions (Task 1).",
+  "examples": [
+   [
+    "The bottles collect.",
+    "The bottles are collected."
+   ],
+   [
+    "will built",
+    "will be built"
+   ]
+  ],
+  "tip": "Check you have BOTH parts: a form of 'be' AND a past participle.",
+  "question": "Describe how bread is made in three passive sentences."
+ },
+ "relative_clauses": {
+  "title": "Relative clauses",
+  "rule": "Use who for people, which for things, whose for possession and where for places. 'That' can replace who/which in defining clauses but not after a comma.",
+  "examples": [
+   [
+    "The book who I read",
+    "The book which/that I read"
+   ],
+   [
+    "Exercise, that improves mood,",
+    "Exercise, which improves mood,"
+   ]
+  ],
+  "tip": "Relative clauses are an easy way to show grammatical range.",
+  "question": "Describe a person you admire using 'who' and 'whose'."
+ },
+ "punctuation": {
+  "title": "Punctuation",
+  "rule": "'However' at the start of a clause needs a full stop or semicolon before it and a comma after it. The pronoun 'I' is always capitalised.",
+  "examples": [
+   [
+    "It is cheap, however it is slow.",
+    "It is cheap; however, it is slow."
+   ],
+   [
+    "i think",
+    "I think"
+   ]
+  ],
+  "tip": "A comma cannot join two complete sentences.",
+  "question": "Write two sentences about public transport joined by 'however'."
+ },
+ "collocation": {
+  "title": "Collocations",
+  "rule": "Collocations are word partnerships that sound natural to native speakers: make a decision, do research, raise awareness, heavy traffic, pose a threat.",
+  "examples": [
+   [
+    "make a research",
+    "carry out research"
+   ],
+   [
+    "do a mistake",
+    "make a mistake"
+   ],
+   [
+    "rise awareness",
+    "raise awareness"
+   ]
+  ],
+  "tip": "Record new vocabulary with its common partners, not as single words.",
+  "question": "Which verb goes with 'progress', 'an effort' and 'a mistake'?"
+ },
+ "word_choice": {
+  "title": "Choosing the right word",
+  "rule": "Some words look similar but have different meanings or uses (teach/learn, according to me/in my opinion). Choose the word whose meaning fits exactly.",
+  "examples": [
+   [
+    "learn me",
+    "teach me"
+   ],
+   [
+    "according to me",
+    "in my opinion"
+   ]
+  ],
+  "tip": "When unsure, check an example sentence in a learner's dictionary.",
+  "question": "What is the difference between 'teach' and 'learn'?"
+ },
+ "word_formation": {
+  "title": "Word formation",
+  "rule": "Choose the right form for the job: noun after an article (the development), adjective after be (it is beneficial), adverb to describe a verb (rose sharply). Some pairs differ in meaning: economic/economical, effect/affect.",
+  "examples": [
+   [
+    "economical growth",
+    "economic growth"
+   ],
+   [
+    "a huge affect",
+    "a huge effect"
+   ]
+  ],
+  "tip": "Look at the word before the gap: it tells you which form you need.",
+  "question": "Give the noun, adjective and adverb forms of 'success'."
+ },
+ "spelling": {
+  "title": "Spelling",
+  "rule": "Spelling errors lower your Lexical Resource score when they are frequent. Common problems: double letters (necessary, accommodation), -ment vs -ement (development) and silent letters (government).",
+  "examples": [
+   [
+    "goverment",
+    "government"
+   ],
+   [
+    "enviroment",
+    "environment"
+   ],
+   [
+    "recieve",
+    "receive"
+   ]
+  ],
+  "tip": "SI adds words you misspell to your vocabulary reviews.",
+  "question": "Can you spell the word for 'the natural world around us'?"
+ },
+ "capitalization": {
+  "title": "Capital letters",
+  "rule": "Capitalise the first word of a sentence, the pronoun 'I', and names of people, places, days and months.",
+  "examples": [
+   [
+    "i think",
+    "I think"
+   ],
+   [
+    "on monday",
+    "on Monday"
+   ]
+  ],
+  "tip": "Proofread the first letter of every sentence.",
+  "question": "Which words need capitals: 'last monday i visited london with sarah.'"
+ },
+ "contractions": {
+  "title": "Contractions in formal writing",
+  "rule": "Avoid contractions (don't, can't, it's) in academic essays and formal letters. They are fine in speaking and informal letters.",
+  "examples": [
+   [
+    "It's clear that...",
+    "It is clear that..."
+   ],
+   [
+    "can't",
+    "cannot"
+   ]
+  ],
+  "tip": "Search your essay for apostrophes before submitting.",
+  "question": "Rewrite formally: 'We can't ignore this problem.'"
+ },
+ "informal_register": {
+  "title": "Formal register",
+  "rule": "Academic writing avoids informal words such as kids, stuff, a bunch of, gonna, OK.",
+  "examples": [
+   [
+    "kids",
+    "children"
+   ],
+   [
+    "stuff",
+    "items / things"
+   ]
+  ],
+  "tip": "Imagine your essay being read by a university professor.",
+  "question": "Give a formal alternative for 'a lot of stuff'."
+ },
+ "linking_words": {
+  "title": "Linking words and cohesion",
+  "rule": "Use a range of linkers for contrast (however, whereas), addition (furthermore), result (consequently) and examples (for instance). Don't start every sentence with a linker.",
+  "examples": [
+   [
+    "Also, ... Also, ... Also, ...",
+    "Furthermore, ... In addition, ... Moreover, ..."
+   ]
+  ],
+  "tip": "Two or three linkers per paragraph is usually enough.",
+  "question": "Join these with a contrast linker: 'Cars are convenient. They pollute the air.'"
+ },
+ "referencing": {
+  "title": "Referencing",
+  "rule": "Use pronouns and words like this, these and such to refer back instead of repeating nouns.",
+  "examples": [
+   [
+    "Cars cause pollution. Cars also cause noise.",
+    "Cars cause pollution. They also cause noise."
+   ]
+  ],
+  "tip": "Make sure every 'it' or 'this' clearly refers to one thing.",
+  "question": "Rewrite: 'Tourism brings money. Tourism also damages nature.'"
+ },
+ "idea_development": {
+  "title": "Developing ideas",
+  "rule": "Each body paragraph needs a clear main idea, an explanation of why it is true, and a specific example or consequence.",
+  "examples": [
+   [
+    "Public transport is good.",
+    "Public transport reduces congestion because one bus can replace dozens of cars, which shortens journey times for everyone."
+   ]
+  ],
+  "tip": "Use the PEEL pattern: Point, Explain, Example, Link.",
+  "question": "Develop this point with a reason and an example: 'Learning languages is useful.'"
+ },
+ "position_clarity": {
+  "title": "Making your position clear",
+  "rule": "In opinion and discussion essays, state your view in the introduction and confirm it in the conclusion. Avoid changing your position halfway.",
+  "examples": [
+   [
+    "There are good and bad points.",
+    "This essay will argue that the benefits clearly outweigh the drawbacks."
+   ]
+  ],
+  "tip": "Write your thesis sentence before you start the essay.",
+  "question": "Write a one-sentence position on whether homework should be banned."
+ },
+ "relevance": {
+  "title": "Staying relevant",
+  "rule": "Every paragraph must answer the question that was asked. Paraphrase the key words of the question so the examiner can see your answer is on topic.",
+  "examples": [
+   [
+    "Writing generally about technology",
+    "Writing specifically about technology in education, as asked"
+   ]
+  ],
+  "tip": "Underline the key words in the question before planning.",
+  "question": "What are the key words in: 'Should governments ban cars from city centres?'"
+ },
+ "overview": {
+  "title": "Task 1 overview",
+  "rule": "Academic Task 1 needs an overview: one or two sentences summarising the main trends or differences, without detailed numbers.",
+  "examples": [
+   [
+    "(no overview)",
+    "Overall, internet access rose in all three countries, with Avalia remaining the highest throughout."
+   ]
+  ],
+  "tip": "Start your overview with 'Overall,'.",
+  "question": "What is the single most important trend in the chart you are describing?"
+ },
+ "filler_words": {
+  "title": "Filler words in speaking",
+  "rule": "Some fillers are natural, but frequent 'um', 'like' and 'you know' make speech sound hesitant. Use short discourse markers instead: 'Well,', 'Let me think,', 'Actually,'.",
+  "examples": [
+   [
+    "Um, like, I think, um...",
+    "Well, I think..."
+   ]
+  ],
+  "tip": "Pause silently for a moment instead of filling the gap.",
+  "question": "Answer in 20 seconds without fillers: what did you do last weekend?"
+ },
+ "short_answers": {
+  "title": "Extending spoken answers",
+  "rule": "In Part 1, give an answer plus a reason or example. In Part 3, explain, give an example and consider another side.",
+  "examples": [
+   [
+    "Yes, I do.",
+    "Yes, I do - mainly because it helps me relax after work, especially on Sundays."
+   ]
+  ],
+  "tip": "Answer + Because + For example.",
+  "question": "Do you like your hometown? Give an extended answer."
+ },
+ "hesitation": {
+  "title": "Reducing hesitation",
+  "rule": "Long pauses usually come from searching for words. Prepare flexible phrases for common topics and paraphrase when you don't know a word.",
+  "examples": [
+   [
+    "I... I... the... word...",
+    "It's a kind of tool that you use for..."
+   ]
+  ],
+  "tip": "Practise speaking for one minute on random topics every day.",
+  "question": "Describe an object without naming it."
+ },
+ "true_false_not_given": {
+  "title": "True / False / Not Given",
+  "rule": "TRUE: the passage says the same. FALSE: the passage says the opposite. NOT GIVEN: the passage does not say. Don't use your own knowledge.",
+  "examples": [
+   [
+    "Choosing FALSE because the topic isn't mentioned",
+    "That's NOT GIVEN - FALSE needs a contradiction"
+   ]
+  ],
+  "tip": "For FALSE, find the sentence that contradicts the statement.",
+  "question": "If a passage says 'many people cycle', is 'most people cycle' TRUE, FALSE or NOT GIVEN?"
+ },
+ "matching_headings": {
+  "title": "Matching headings",
+  "rule": "Headings summarise the main idea of the whole paragraph, not one detail.",
+  "examples": [],
+  "tip": "Read the first and last sentences of each paragraph first.",
+  "question": "What is the main idea of the last paragraph you read?"
+ }
+}

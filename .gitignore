@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+build/
+.expo/
+web-build/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+playwright-report/
+test-results/
+
+# Env & local data
+.env
+.env.local
+.env.*.local
+backend/storage/
+storage/
+*.log
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
