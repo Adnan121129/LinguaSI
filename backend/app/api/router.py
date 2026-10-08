@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.routes import auth, comprehension, health, lab, learner, me, mistakes, speaking, tutor, vocabulary, writing
+from app.api.routes import admin, auth, comprehension, health, lab, learner, me, mistakes, speaking, tutor, vocabulary, writing
 
 api_router = APIRouter()
 api_router.include_router(health.router)
@@ -22,3 +22,4 @@ api_router.include_router(learner.recommendations_router)
 api_router.include_router(learner.gamification_router)
 api_router.include_router(tutor.router)
 api_router.include_router(lab.router)
+api_router.include_router(admin.router)

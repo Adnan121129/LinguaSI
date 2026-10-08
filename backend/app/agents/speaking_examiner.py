@@ -18,14 +18,15 @@ from app.agents.context import build_context
 from app.agents.error_analyst import ErrorRecord
 from app.agents.vocabulary_engine import contains_item
 from app.ai.client import ai_client
+from app.ai.mock.speaking import plan as bank_plan
 from app.ai.providers.base import AIError
 from app.ai.schemas import SpeakingEvaluationAI, SpeakingPlanAI, SpeakingTurnAI
 from app.analytics.grammar_rules import detect_errors
-from app.analytics.speaking_metrics import aggregate
+from app.analytics.speaking_metrics import aggregate, heuristic_speaking
 from app.core.clock import get_zone, utcnow
 from app.core.levels import clamp_band, round_band_down, snap_half
 from app.core.taxonomy import category_for, normalize_subcategory
-from app.models import SpeakingEvaluation, SpeakingSession, User, VocabularyItem
+from app.models import SpeakingEvaluation, SpeakingSession, SpeakingTopic, User, VocabularyItem
 from app.services.content import speaking_bank
 
 MAX_FOLLOWUPS = {1: 2, 2: 0, 3: 2}
@@ -37,25 +38,47 @@ def _time_of_day(user: User) -> str:
     return "morning" if hour < 12 else "afternoon" if hour < 18 else "evening"
 
 
+def topic_bank(db: Session) -> dict:
+    """Active speaking topics from the database (admins can hide topics); falls back to the seed file."""
+    rows = db.scalars(select(SpeakingTopic).where(SpeakingTopic.is_active.is_(True))).all()
+    part1 = [{"topic": r.topic, "questions": r.questions} for r in rows if r.kind == "part1" and r.questions]
+    cards = [
+        {"topic": r.topic, "tags": r.tags, "cue_card": r.cue_card, "part3_questions": r.part3_questions}
+        for r in rows
+        if r.kind == "cue_card" and r.cue_card and len(r.part3_questions) >= 3
+    ]
+    if part1 and cards:
+        return {"part1": part1, "cue_cards": cards}
+    bank = speaking_bank()
+    return {"part1": bank["part1"], "cue_cards": bank["cue_cards"]}
+
+
 def create_plan(db: Session, user: User, mode: str) -> tuple[dict, list[str]]:
     """Returns (plan, target_expressions)."""
     ctx = build_context(db, user)
     seed = random.randint(1, 10_000_000)
     themes = list(ctx.preferred_topics)
+    recent = [
+        t for t in db.scalars(select(SpeakingSession.topic).where(SpeakingSession.user_id == user.id).order_by(SpeakingSession.created_at.desc()).limit(3)) if t
+    ]
+    bank_context = {"seed": seed, "themes": themes, "avoid_topics": recent, "bank": topic_bank(db)}
     try:
         parsed, _ = ai_client.generate_model(
             "speaking_plan",
-            {"mode": mode, "learner_context": ctx.for_prompt("speaking"), "themes": ", ".join(themes) or "(any)", "avoid_topics": "(none)"},
+            {
+                "mode": mode,
+                "learner_context": ctx.for_prompt("speaking"),
+                "themes": ", ".join(themes) or "(any)",
+                "avoid_topics": ", ".join(recent) or "(none)",
+            },
             SpeakingPlanAI,
             user_id=user.id,
-            mock_context={"seed": seed, "themes": themes},
+            mock_context=bank_context,
         )
         if len(parsed.cue_card.bullets) < 3 or not parsed.part1 or len(parsed.part3) < 3:
             raise ValueError("incomplete plan")
     except (AIError, ValueError):
-        from app.ai.mock.speaking import plan as bank_plan
-
-        parsed = bank_plan({"seed": seed, "themes": themes})
+        parsed = bank_plan(bank_context)
 
     lines = speaking_bank()["examiner_lines"]
     queue: list[dict] = []
@@ -336,6 +359,4 @@ def evaluate_session(db: Session, user: User, session: SpeakingSession) -> tuple
 
 
 def _hesitation(agg) -> dict:
-    from app.analytics.speaking_metrics import heuristic_speaking
-
     return heuristic_speaking(agg, []).hesitation

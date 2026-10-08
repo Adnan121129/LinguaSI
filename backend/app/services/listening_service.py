@@ -144,7 +144,7 @@ def generate(
             db.scalars(
                 select(ListeningScript)
                 .options(selectinload(ListeningScript.questions))
-                .where(or_(ListeningScript.created_for_user_id.is_(None), ListeningScript.created_for_user_id == user.id))
+                .where(ListeningScript.is_active.is_(True), or_(ListeningScript.created_for_user_id.is_(None), ListeningScript.created_for_user_id == user.id))
             )
         )
         if scenario:

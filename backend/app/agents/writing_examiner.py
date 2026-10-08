@@ -21,14 +21,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.agents.context import build_context
-from app.agents.error_analyst import ErrorRecord
+from app.agents.error_analyst import ErrorRecord, signature_for
 from app.ai.client import ai_client
 from app.ai.schemas import WritingEvaluationAI
 from app.analytics.grammar_rules import DetectedError, detect_errors
 from app.analytics.writing_metrics import analyze_essay
-from app.core.levels import clamp_band, round_band_down, snap_half
+from app.core.levels import clamp_band, round_band, round_band_down, snap_half
 from app.core.taxonomy import category_for, label_for, normalize_subcategory
-from app.models import User, WritingError, WritingEvaluation, WritingSubmission, WritingTask
+from app.models import Mistake, User, WritingError, WritingEvaluation, WritingSubmission, WritingTask
 
 logger = logging.getLogger("linguasi.agents.writing")
 
@@ -299,9 +299,6 @@ def evaluate_submission(db: Session, user: User, submission: WritingSubmission) 
 
 def link_mistakes(db: Session, evaluation: WritingEvaluation) -> None:
     """After SI Core stored the mistakes, link each error annotation to its tracker entry."""
-    from app.agents.error_analyst import signature_for
-    from app.models import Mistake
-
     for err in evaluation.errors:
         record = ErrorRecord(source="writing", category=err.category, subcategory=err.subcategory, original=err.original, corrected=err.corrected)
         mistake = db.scalar(select(Mistake).where(Mistake.user_id == evaluation.user_id, Mistake.signature == signature_for(record)).limit(1))
@@ -326,8 +323,6 @@ def writing_band_estimate(db: Session, user: User, latest: WritingEvaluation, la
     if latest_task_type == "general":
         return latest.overall_band
     if t1 is not None and t2 is not None:
-        from app.core.levels import round_band
-
         return round_band((t1 + 2 * t2) / 3)
     return latest.overall_band
 

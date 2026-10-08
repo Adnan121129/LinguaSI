@@ -25,6 +25,7 @@ class SpeakingTopic(CreatedAtMixin, Base):
     cue_card: Mapped[dict | None] = mapped_column(JSONB)  # {title, prompt, bullets, rounding_off}
     part3_questions: Mapped[list] = mapped_column(JSONB, default=list)
     difficulty: Mapped[int] = mapped_column(Integer, default=3)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
 class SpeakingSession(TimestampMixin, Base):

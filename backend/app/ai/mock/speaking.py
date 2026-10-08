@@ -21,7 +21,7 @@ from app.services.content import speaking_bank
 @mock_handler("speaking_plan")
 def plan(ctx: dict) -> SpeakingPlanAI:
     rng = random.Random(ctx.get("seed", 0))
-    bank = speaking_bank()
+    bank = ctx.get("bank") or speaking_bank()
     avoid = set(ctx.get("avoid_topics") or [])
     themes = set(ctx.get("themes") or [])
     frames = [f for f in bank["part1"] if f["topic"] not in avoid] or bank["part1"]

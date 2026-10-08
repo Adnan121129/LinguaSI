@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime, time, timedelta
 
-from sqlalchemy import distinct, func, select
+from sqlalchemy import distinct, func, select, true
 from sqlalchemy.orm import Session
 
 from app.core.clock import get_zone, local_today, start_of_week, utcnow
@@ -19,6 +19,7 @@ from app.models import (
     Profile,
     ReadingAttempt,
     SpeakingSession,
+    Streak,
     StudySession,
     TutorConversation,
     TutorMessage,
@@ -114,11 +115,21 @@ def mistake_counts(db: Session, user_id: int) -> dict[str, int]:
     return counts
 
 
-def recurring_mistakes(db: Session, user_id: int, days: int = 30, limit: int = 5, min_count: int = 2) -> list[dict]:
+# Missed vocabulary reviews are scheduled again by the spaced-repetition engine, so they are kept out of
+# "recurring mistake" analysis (weak areas, AI context, revision focus), which is about language production.
+RECALL_SUBCATEGORIES = ("vocabulary_recall",)
+
+
+def recurring_mistakes(db: Session, user_id: int, days: int = 30, limit: int = 5, min_count: int = 2, *, include_recall: bool = False) -> list[dict]:
     since = utcnow() - timedelta(days=days)
     rows = db.execute(
         select(Mistake.subcategory, Mistake.category, func.sum(Mistake.occurrences).label("n"), func.max(Mistake.last_seen_at))
-        .where(Mistake.user_id == user_id, Mistake.last_seen_at >= since, Mistake.status != "mastered")
+        .where(
+            Mistake.user_id == user_id,
+            Mistake.last_seen_at >= since,
+            Mistake.status != "mastered",
+            true() if include_recall else Mistake.subcategory.not_in(RECALL_SUBCATEGORIES),
+        )
         .group_by(Mistake.subcategory, Mistake.category)
         .order_by(func.sum(Mistake.occurrences).desc())
         .limit(limit)
@@ -165,8 +176,6 @@ def achievement_metrics(db: Session, user: User, level: int | None = None) -> di
     band_improvement = 0.0
     if first_diag is not None and profile.estimated_band is not None:
         band_improvement = profile.estimated_band - first_diag
-    from app.models import Streak  # local import to avoid a cycle
-
     streak = db.get(Streak, uid)
     return {
         "diagnostic_completed": float(profile.diagnostic_completed),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any, Literal, Protocol
 
@@ -82,8 +83,6 @@ class AIProvider(Protocol):
 
 def json_instruction(response_model: type[BaseModel]) -> str:
     """Instruction appended for providers without native schema-constrained decoding."""
-    import json
-
     schema = json.dumps(response_model.model_json_schema(), separators=(",", ":"))
     return f"\n\nRespond with ONLY a single JSON object (no markdown fences, no commentary) that validates against this JSON Schema:\n{schema}"
 

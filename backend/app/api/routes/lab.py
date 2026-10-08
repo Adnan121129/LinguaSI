@@ -20,7 +20,7 @@ from app.schemas.practice import PracticeSetOut
 from app.services import lab_service, practice_service
 from app.services.content import conversation_scenarios, pronunciation_sets
 
-router = APIRouter(prefix="/lab", tags=["english-lab"])
+router = APIRouter(prefix="/lab", tags=["lab"])
 
 
 @router.get("", response_model=LabOverview, summary="English Lab sections and today's phrase")

@@ -19,6 +19,8 @@ from app.ai import prompts
 from app.ai.providers.base import AIError, AIMalformedOutputError, AIMessage, AIProvider, AIRequest, AIResult
 from app.ai.tasks import TASKS
 from app.core.config import settings
+from app.core.database import SessionLocal
+from app.models import AIInteractionLog
 
 logger = logging.getLogger("linguasi.ai")
 
@@ -169,9 +171,6 @@ class AIClient:
                 "response_preview": (result.text or "")[:2000],
             }
         try:
-            from app.core.database import SessionLocal
-            from app.models import AIInteractionLog
-
             db = SessionLocal()
             try:
                 db.add(

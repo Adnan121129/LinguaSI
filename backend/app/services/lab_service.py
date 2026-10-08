@@ -115,7 +115,7 @@ def daily_quiz(db: Session, user: User) -> PracticeSet:
 
 
 def sentence_building(db: Session, user: User, count: int = 5) -> PracticeSet:
-    items_pool = list(db.scalars(select(VocabularyItem)))
+    items_pool = list(db.scalars(select(VocabularyItem).where(VocabularyItem.is_active.is_(True))))
     rng = random.Random()
     rng.shuffle(items_pool)
     items = []

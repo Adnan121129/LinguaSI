@@ -30,7 +30,7 @@ MAX_HINTS = 12
 
 
 def list_tasks(db: Session, user: User, *, task_type: str | None, module: str | None, category: str | None, page: int, page_size: int):
-    q = select(WritingTask).where(or_(WritingTask.created_for_user_id.is_(None), WritingTask.created_for_user_id == user.id))
+    q = select(WritingTask).where(WritingTask.is_active.is_(True), or_(WritingTask.created_for_user_id.is_(None), WritingTask.created_for_user_id == user.id))
     if task_type:
         q = q.where(WritingTask.task_type == task_type)
     if module:

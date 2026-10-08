@@ -205,14 +205,21 @@ def build_candidates(db: Session, user: User, ctx: LearnerContext | None = None)
     if last_speaking:
         fpm = (last_speaking.metrics or {}).get("fillers_per_minute", 0)
         developed = (last_speaking.metrics or {}).get("developed_ratio", 1)
-        if fpm > 4 or (last_speaking.hesitation or {}).get("level") == "high":
+        hesitation = last_speaking.hesitation or {}
+        if fpm > 4 or hesitation.get("level") == "high":
+            if fpm > 4:
+                evidence = f"Your last speaking session had about {fpm:.1f} filler words per minute."
+            elif hesitation.get("measured"):
+                evidence = f"Your last speaking session had {hesitation.get('long_pauses', 0)} pauses longer than two seconds."
+            else:
+                evidence = "Your last speaking session showed frequent hesitation."
             out.append(
                 Candidate(
                     "speaking_fluency",
                     "speaking",
                     "Short speaking drill: smooth Part 1 answers",
                     "Three Part 1 questions focusing on fewer fillers and pauses.",
-                    f"Your last speaking session had about {fpm:.1f} filler words per minute. Short, frequent drills build fluency faster than occasional long tests.",
+                    f"{evidence} Short, frequent drills build fluency faster than occasional long tests.",
                     0.78,
                     "/speaking?mode=part1",
                     8,

@@ -290,8 +290,9 @@ def progress_insights(db: Session, user: User, skills: list[dict]) -> dict:
     previous = stats.mistake_window_counts(db, user.id, now - timedelta(days=28), now - timedelta(days=14))
     trends = [
         {"subcategory": sub, "label": label_for(sub), "recent": recent.get(sub, 0), "previous": previous.get(sub, 0)}
-        for sub in sorted(set(recent) | set(previous), key=lambda k: -(recent.get(k, 0) + previous.get(k, 0)))[:6]
-    ]
+        for sub in sorted(set(recent) | set(previous), key=lambda k: -(recent.get(k, 0) + previous.get(k, 0)))
+        if sub not in stats.RECALL_SUBCATEGORIES
+    ][:6]
     skill_data = [
         {"skill": s["skill"], "score": s["score"] if s["attempts"] else None, "score_before": before.get(s["skill"]), "band": s["band"]} for s in skills
     ]

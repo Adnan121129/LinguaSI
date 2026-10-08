@@ -26,10 +26,11 @@ from app.analytics import srs
 from app.analytics.grammar_rules import detect_errors
 from app.analytics.scoring import normalize_completion
 from app.analytics.text import stem, words
-from app.core.clock import utcnow
+from app.core.clock import local_today, utcnow
 from app.core.errors import NotFoundError, ValidationAppError
 from app.core.levels import CEFR_LEVELS
 from app.models import User, UserVocabulary, VocabularyItem, VocabularyReview
+from app.repositories.stats import local_day_start_utc
 
 EXERCISE_TYPES = (
     "multiple_choice",
@@ -142,7 +143,7 @@ def choose_items(
     seed: int = 0,
 ) -> list[VocabularyItem]:
     owned = _owned_ids(db, user.id)
-    candidates = [i for i in db.scalars(select(VocabularyItem)) if i.id not in owned]
+    candidates = [i for i in db.scalars(select(VocabularyItem).where(VocabularyItem.is_active.is_(True))) if i.id not in owned]
     if phrase is not None:
         candidates = [i for i in candidates if i.is_phrase == phrase] or candidates
     if academic is not None:
@@ -407,12 +408,14 @@ def build_session(db: Session, user: User, *, limit: int | None = None) -> dict:
         .order_by(UserVocabulary.priority.desc(), UserVocabulary.due_at.asc())
         .limit(total_limit)
     ).all()
+    new_slots = max(0, min(new_limit, total_limit - len(due)))
+    _top_up_new_words(db, user, new_slots, new_limit)
     fresh = db.execute(
         select(UserVocabulary, VocabularyItem)
         .join(VocabularyItem, VocabularyItem.id == UserVocabulary.item_id)
         .where(UserVocabulary.user_id == user.id, UserVocabulary.state == "new")
         .order_by(UserVocabulary.priority.desc(), UserVocabulary.added_at.asc())
-        .limit(max(0, min(new_limit, total_limit - len(due))))
+        .limit(new_slots)
     ).all()
     pool = list(db.scalars(select(VocabularyItem)))
     seed = int(now.timestamp() // 3600)
@@ -422,6 +425,23 @@ def build_session(db: Session, user: User, *, limit: int | None = None) -> dict:
         ex = build_exercise(uv, item, pool, exercise_type_for(uv, item, review_count), seed)
         exercises.append(ex.public() | {"reason": uv.reason, "reason_detail": uv.reason_detail, "is_new": uv.state == "new"})
     return {"exercises": exercises, "due_count": len(due), "new_count": len(fresh)}
+
+
+def _top_up_new_words(db: Session, user: User, slots: int, daily_limit: int) -> None:
+    """Keep introducing new words: when the learner has run out of unseen words, add a few each day."""
+    if slots <= 0:
+        return
+    waiting = db.scalar(select(func.count(UserVocabulary.id)).where(UserVocabulary.user_id == user.id, UserVocabulary.state == "new")) or 0
+    if waiting >= slots:
+        return
+    day_start = local_day_start_utc(local_today(user.profile.timezone), user.profile.timezone)
+    added_today = db.scalar(select(func.count(UserVocabulary.id)).where(UserVocabulary.user_id == user.id, UserVocabulary.added_at >= day_start)) or 0
+    allowance = min(slots - waiting, daily_limit - added_today)
+    if allowance <= 0:
+        return
+    topics = set(user.profile.preferred_topics or []) | ({"academic", "argument"} if user.profile.goal == "ielts" else {"daily_life"})
+    items = choose_items(db, user, limit=allowance, topics=topics, seed=int(day_start.timestamp()))
+    add_words(db, user, items, reason="level", detail="New word for your level and interests", priority=1.0)
 
 
 def parse_exercise_id(exercise_id: str) -> tuple[int, str, int]:
