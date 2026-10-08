@@ -148,7 +148,10 @@ def evaluate(db: Session, user: User, submission_id: int, content: str | None, t
         sub.failure_reason = getattr(exc, "category", "provider_error")
         db.commit()
         logger.warning("Writing evaluation failed for submission %s: %s", submission_id, exc)
-        raise AIUnavailableError(details={"submission_id": submission_id, "status": "evaluation_failed"}) from exc
+        raise AIUnavailableError(
+            "AI analysis is temporarily unavailable. Your submission has been saved and can be analyzed again.",
+            details={"submission_id": submission_id, "status": "evaluation_failed"},
+        ) from exc
 
     sub.status = "evaluated"
     sub.evaluated_at = utcnow()

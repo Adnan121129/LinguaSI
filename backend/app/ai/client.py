@@ -137,7 +137,8 @@ class AIClient:
 
     def generate_model(self, task: str, variables: dict[str, Any], response_model: type[M], **kwargs: Any) -> tuple[M, AIResult]:
         result = self.generate(task, variables, response_model=response_model, **kwargs)
-        assert result.parsed is not None
+        if result.parsed is None:
+            raise AIMalformedOutputError(f"{task}: provider returned no structured output")
         return result.parsed, result  # type: ignore[return-value]
 
     def _log(

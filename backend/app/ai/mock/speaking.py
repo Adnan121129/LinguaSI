@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from collections import Counter
 
 from app.ai.mock import mock_handler
 from app.ai.schemas import (
@@ -52,7 +53,8 @@ def next_turn(ctx: dict) -> SpeakingTurnAI:
     if part == 1 and words < 15:
         options = bank["followups"]["part1"]
         return SpeakingTurnAI(action="followup", acknowledgement=ack, followup_question=options[turn % len(options)])
-    if part == 3 and words < 40:
+    if part == 3 and (words < 40 or asked == 0):
+        # Like a real examiner, probe at least once in the discussion, and whenever an answer is underdeveloped.
         options = bank["followups"]["part3"]
         return SpeakingTurnAI(action="followup", acknowledgement=ack, followup_question=options[turn % len(options)])
     return SpeakingTurnAI(action="next", acknowledgement=ack)
@@ -65,8 +67,6 @@ def evaluate(ctx: dict) -> SpeakingEvaluationAI:
     used = ctx.get("expressions_used", [])
     h = heuristic_speaking(agg, errors, expressions_used=len(used))
     grammar_patterns = []
-    from collections import Counter
-
     for sub, count in Counter(e.subcategory for e in errors if e.category == "grammar").most_common(3):
         grammar_patterns.append(f"{sub.replace('_', ' ').capitalize()} errors appeared {count} time{'s' if count > 1 else ''}.")
     if agg.complexity_per_100 >= 3:

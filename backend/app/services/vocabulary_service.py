@@ -104,6 +104,8 @@ def complete_session(db: Session, user: User, started_at: datetime, duration_sec
             skill_results=[SkillResult("vocabulary", accuracy, None, None)],
             errors=errors,
             completes_kinds={"vocabulary"},
+            # Each answer already earned XP; finishing a proper session earns a small completion bonus.
+            xp=[(5, "vocab_session", f"Vocabulary session completed ({len(reviews)} words)")] if len(reviews) >= 5 else [],
             meta={"reviews": len(reviews), "correct": correct},
             started_at=started,
         ),

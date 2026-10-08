@@ -6,8 +6,9 @@ Every practice result updates the learner's skill profile:
   * confidence - grows with the number of attempts, shrinks with inconsistency
   * trend      - slope of the recent scores
   * difficulty - changes by at most one step, and only after several attempts at the current
-                 difficulty agree (>= 85% -> harder, < 55% -> easier). A single answer never
-                 causes a dramatic change.
+                 difficulty agree: the last three average >= 85% with none below 75% -> harder;
+                 the last two average < 55% with neither above 65% -> easier. One unusually good
+                 or bad session can never move the level on its own.
 """
 
 from __future__ import annotations
@@ -20,7 +21,9 @@ from app.core.levels import snap_half
 
 RECENT_LIMIT = 12
 PROMOTE_THRESHOLD = 85.0
+PROMOTE_FLOOR = 75.0  # every one of the last three sessions must be at least this good
 DEMOTE_THRESHOLD = 55.0
+DEMOTE_CEILING = 65.0  # neither of the last two sessions may be better than this
 
 
 @dataclass
@@ -82,10 +85,10 @@ def apply_result(profile, *, score: float, band: float | None, difficulty: int |
         same = [r for r in recent[-5:] if r.get("difficulty") == current]
         last3 = [r["score"] for r in same[-3:]]
         last2 = [r["score"] for r in same[-2:]]
-        if len(last3) >= 3 and sum(last3) / 3 >= PROMOTE_THRESHOLD and current < 5:
+        if len(last3) >= 3 and sum(last3) / 3 >= PROMOTE_THRESHOLD and min(last3) >= PROMOTE_FLOOR and current < 5:
             profile.difficulty = current + 1
             reason = f"Average {sum(last3) / 3:.0f}% over your last 3 sessions at level {current} - moving up to level {current + 1}."
-        elif len(last2) >= 2 and sum(last2) / 2 < DEMOTE_THRESHOLD and current > 1:
+        elif len(last2) >= 2 and sum(last2) / 2 < DEMOTE_THRESHOLD and max(last2) <= DEMOTE_CEILING and current > 1:
             profile.difficulty = current - 1
             reason = f"Average {sum(last2) / 2:.0f}% over your last 2 sessions at level {current} - easing to level {current - 1} with targeted support."
     return SkillUpdate(
