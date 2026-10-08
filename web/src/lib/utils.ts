@@ -1,5 +1,8 @@
+import { twMerge } from "tailwind-merge";
+
+/** Joins class names; later Tailwind utilities override conflicting earlier ones (e.g. w-full then w-auto). */
 export function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(" ");
+  return twMerge(classes.filter(Boolean).join(" "));
 }
 
 export function formatBand(band: number | null | undefined): string {
@@ -43,4 +46,8 @@ export function wordCount(text: string): number {
 
 export function percent(value: number | null | undefined): string {
   return value === null || value === undefined ? "—" : `${Math.round(value)}%`;
+}
+
+export function taskTypeLabel(taskType: string): string {
+  return taskType === "task1" ? "Task 1" : taskType === "task2" ? "Task 2" : "General writing";
 }

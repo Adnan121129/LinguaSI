@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -98,9 +98,36 @@ function NavLinks({ pathname, isAdmin, onNavigate }: { pathname: string; isAdmin
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+// Components that read the URL are wrapped in <Suspense> so the shell itself can be prerendered.
+function ActiveNavLinks({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
+  return <NavLinks pathname={usePathname()} isAdmin={isAdmin} onNavigate={onNavigate} />;
+}
+
+function SettingsLink({ onNavigate }: { onNavigate?: () => void }) {
+  const active = isActive(usePathname(), "/settings");
+  return (
+    <Link
+      href="/settings"
+      onClick={onNavigate}
+      className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium", active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground")}
+    >
+      <Settings className="size-4" aria-hidden /> Settings
+    </Link>
+  );
+}
+
+/** Sends learners who haven't finished onboarding to /onboarding. */
+function OnboardingGate({ onboarded }: { onboarded: boolean | undefined }) {
   const pathname = usePathname();
   const router = useRouter();
+  const redirect = onboarded === false && !pathname.startsWith("/onboarding");
+  useEffect(() => {
+    if (redirect) router.replace("/onboarding");
+  }, [redirect, router]);
+  return null;
+}
+
+export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data: me, isLoading } = useMe();
   const { data: meta } = useQuery({ queryKey: ["meta"], queryFn: () => api<{ ai: { mock_mode: boolean; provider: string } }>("/meta"), staleTime: 300_000 });
@@ -109,10 +136,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Close the mobile drawer when this page is hidden by a navigation.
   useLayoutEffect(() => () => setDrawerOpen(false), []);
 
-  const needsOnboarding = !!me && !me.profile.onboarding_completed && !pathname.startsWith("/onboarding");
-  useEffect(() => {
-    if (needsOnboarding) router.replace("/onboarding");
-  }, [needsOnboarding, router]);
 
   async function signOut() {
     await request("/api/auth/logout", { method: "POST" }).catch(() => undefined);
@@ -126,16 +149,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Logo href="/dashboard" />
       </div>
       <div className="flex-1 overflow-y-auto">
-        <NavLinks pathname={pathname} isAdmin={me?.role === "admin"} onNavigate={() => setDrawerOpen(false)} />
+        <Suspense fallback={<NavLinks pathname="" isAdmin={me?.role === "admin"} />}>
+          <ActiveNavLinks isAdmin={me?.role === "admin"} onNavigate={() => setDrawerOpen(false)} />
+        </Suspense>
       </div>
       <div className="space-y-3 border-t border-border pt-4">
-        <Link
-          href="/settings"
-          onClick={() => setDrawerOpen(false)}
-          className={cn("flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium", isActive(pathname, "/settings") ? "bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground")}
-        >
-          <Settings className="size-4" aria-hidden /> Settings
-        </Link>
+        <Suspense>
+          <SettingsLink onNavigate={() => setDrawerOpen(false)} />
+        </Suspense>
         <button onClick={signOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
           <LogOut className="size-4" aria-hidden /> Sign out
         </button>
@@ -184,9 +205,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
-        {(isLoading || needsOnboarding) && <PageSkeleton />}
+        <Suspense>
+          <OnboardingGate onboarded={me?.profile.onboarding_completed} />
+        </Suspense>
+        {isLoading && <PageSkeleton />}
         {/* The page stays mounted (just hidden) while the session loads, so navigation can be prerendered instantly. */}
-        <div className={cn(isLoading || needsOnboarding ? "hidden" : undefined)}>{children}</div>
+        <div className={cn(isLoading ? "hidden" : undefined)}>
+          <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+        </div>
       </main>
     </div>
   );

@@ -169,7 +169,8 @@ export function MultiLineChart({
           {series.map((s) => (
             <Line
               key={s.key}
-              type="monotone"
+              type="linear"
+              isAnimationActive={false}
               dataKey={s.key}
               name={s.label}
               stroke={s.color}
@@ -199,7 +200,8 @@ export function AreaTrendChart({ data, xKey, series, xFormat, unit, height = 220
           {series.map((s) => (
             <Area
               key={s.key}
-              type="monotone"
+              type="linear"
+              isAnimationActive={false}
               dataKey={s.key}
               name={s.label}
               stroke={s.color}
@@ -247,15 +249,16 @@ export function ColumnChart({
             <ReferenceLine y={reference.value} stroke="var(--axis-text)" strokeWidth={1} label={{ value: reference.label, position: "insideTopRight", fill: "var(--axis-text)", fontSize: 11 }} />
           )}
           <Tooltip content={<ChartTooltip unit={unit} labelFormat={xFormat} />} cursor={{ fill: "var(--muted)" }} />
-          <Bar dataKey={yKey} name={label} fill={color} radius={[4, 4, 0, 0]} maxBarSize={24} />
+          <Bar dataKey={yKey} name={label} fill={color} radius={[4, 4, 0, 0]} maxBarSize={24} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-/** Horizontal score bars with a target marker - clearer than a radar for comparing a few skills. */
-export function SkillBars({ rows }: { rows: { label: string; score: number | null; target?: number; color?: string }[] }) {
+/** Horizontal score bars with a target marker - clearer than a radar for comparing a few skills.
+ *  Every bar is labelled, so one hue is enough: colour would only repeat what the label already says. */
+export function SkillBars({ rows }: { rows: { label: string; score: number | null; target?: number }[] }) {
   return (
     <ul className="space-y-3">
       {rows.map((row) => (
@@ -265,7 +268,7 @@ export function SkillBars({ rows }: { rows: { label: string; score: number | nul
             <span className="tabular-nums text-muted-foreground">{row.score === null ? "No data yet" : `${Math.round(row.score)}/100`}</span>
           </div>
           <div className="relative h-2.5 rounded-full bg-muted">
-            <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${row.score ?? 0}%`, background: row.color ?? "var(--series-1)" }} />
+            <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${row.score ?? 0}%`, background: "var(--series-1)" }} />
             {row.target !== undefined && (
               <div className="absolute -top-1 h-4.5 w-0.5 rounded bg-foreground/60" style={{ left: `${row.target}%` }} title={`Target ${Math.round(row.target)}`} aria-hidden />
             )}
@@ -338,7 +341,7 @@ export function MatrixHeatmap({ columns, rows }: { columns: string[]; rows: { la
                 <td key={i} className="p-0.5">
                   <div
                     className="grid size-7 place-items-center rounded-md tabular-nums"
-                    style={{ background: `var(--seq-${v ? Math.min(5, Math.ceil((v / max) * 5)) : 0})`, color: v / max > 0.6 ? "white" : "var(--foreground)" }}
+                    style={{ background: `var(--seq-${v ? Math.min(5, Math.ceil((v / max) * 5)) : 0})`, color: v / max > 0.6 ? "var(--seq-ink)" : "var(--foreground)" }}
                     title={`${row.label}, ${columns[i]}: ${v}`}
                   >
                     {v || ""}

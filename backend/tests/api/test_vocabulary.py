@@ -63,7 +63,7 @@ def test_invalid_or_foreign_exercise_ids_are_rejected(onboarded, make_learner):
 
 
 def test_word_bank_add_mark_known_and_insights(onboarded):
-    bank = onboarded.get("/vocabulary/bank?query=mitigate").json()
+    bank = onboarded.get("/vocabulary/bank?q=mitigate").json()
     item = bank["items"][0]
     assert onboarded.post("/vocabulary/words", json={"item_id": item["id"]}).status_code == 200
     words = onboarded.get("/vocabulary/words").json()["items"]

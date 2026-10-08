@@ -42,3 +42,4 @@ next-env.d.ts
 
 # local screenshot helpers
 *.tmp.mjs
+!.env.example

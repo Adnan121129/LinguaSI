@@ -36,6 +36,7 @@
   --seq-3: #5598e7;
   --seq-4: #256abf;
   --seq-5: #104281;
+  --seq-ink: #ffffff; /* label colour on the strongest cells */
   --grid: #e8ebf2;
   --axis-text: #6b7385;
   --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05);
@@ -72,6 +73,7 @@
   --seq-3: #2a78d6;
   --seq-4: #5598e7;
   --seq-5: #9ec5f4;
+  --seq-ink: #0b1020;
   --grid: #222c42;
   --axis-text: #8e98ae;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);

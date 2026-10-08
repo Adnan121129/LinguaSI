@@ -79,3 +79,16 @@ def test_practice_topics_and_custom_sets(onboarded, db):
     r = onboarded.post(f"/practice/sets/{ps['id']}/submit", json={"answers": _answers(db, ps["id"]), "duration_seconds": 90})
     assert r.json()["outcome"]["xp_gained"] > 0
     assert onboarded.post("/practice/sets", json={"focus": "not_a_topic"}).status_code == 422
+
+
+def test_comprehension_mistakes_route_to_question_practice(onboarded, db):
+    from app.models import ReadingQuestion
+
+    attempt = onboarded.post("/reading/generate", json={"question_count": 5}).json()
+    onboarded.post("/reading/submit", json={"attempt_id": attempt["id"], "answers": {str(q["id"]): "zzz" for q in attempt["questions"]}})
+    mistake = onboarded.get("/mistakes?category=comprehension").json()["items"][0]
+    r = onboarded.post(f"/mistakes/{mistake['id']}/practice")
+    assert r.status_code == 422
+    error = r.json()["error"]
+    assert error["code"] == "use_skill_practice" and error["details"]["route"].startswith("/reading?types=")
+    assert db.query(ReadingQuestion).count() > 0
