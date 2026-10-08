@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+/* Class-based dark mode so the learner's choice (light / dark / system) is respected. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f7f8fc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #eef1f7;
+  --muted-foreground: #5b6478;
+  --border: #e2e6ef;
+  --ring: #6366f1;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --primary-soft: #eef0ff;
+  --accent: #0ea5e9;
+  --accent-soft: #e6f6fd;
+  --success: #059669;
+  --success-soft: #e7f8f1;
+  --warning: #d97706;
+  --warning-soft: #fdf4e3;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+  /* Chart series: validated categorical order (CVD-safe adjacent pairs on this surface). */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  /* Sequential (magnitude) ramp, one hue, low -> high */
+  --seq-0: #eef1f7;
+  --seq-1: #cde2fb;
+  --seq-2: #9ec5f4;
+  --seq-3: #5598e7;
+  --seq-4: #256abf;
+  --seq-5: #104281;
+  --grid: #e8ebf2;
+  --axis-text: #6b7385;
+  --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05);
+}
+
+.dark {
+  --background: #0b1020;
+  --foreground: #e6e9f2;
+  --card: #121a2e;
+  --card-foreground: #e6e9f2;
+  --muted: #1a2338;
+  --muted-foreground: #98a2b8;
+  --border: #243049;
+  --ring: #818cf8;
+  --primary: #818cf8;
+  --primary-foreground: #0b1020;
+  --primary-soft: #1e2350;
+  --accent: #38bdf8;
+  --accent-soft: #0e2a3d;
+  --success: #34d399;
+  --success-soft: #0f2e25;
+  --warning: #fbbf24;
+  --warning-soft: #33270c;
+  --danger: #f87171;
+  --danger-soft: #3a1717;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --seq-0: #1a2338;
+  --seq-1: #104281;
+  --seq-2: #1c5cab;
+  --seq-3: #2a78d6;
+  --seq-4: #5598e7;
+  --seq-5: #9ec5f4;
+  --grid: #222c42;
+  --axis-text: #8e98ae;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow-card: var(--shadow);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Inline error highlight inside essays and transcripts */
+.mark-error {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border-bottom: 2px solid var(--danger);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.mark-error[data-severity="low"] {
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+  border-bottom-color: var(--warning);
+}
+.mark-error[data-active="true"] {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  border-bottom-color: var(--primary);
+}
+.mark-evidence {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  border-radius: 2px;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pop-in {
+  animation: pop-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
