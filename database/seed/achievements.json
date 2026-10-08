@@ -1,0 +1,338 @@
+[
+ {
+  "code": "first_steps",
+  "name": "First Steps",
+  "description": "Complete your diagnostic assessment.",
+  "icon": "flag",
+  "category": "milestone",
+  "tier": "bronze",
+  "xp_reward": 50,
+  "criteria": {
+   "metric": "diagnostic_completed",
+   "value": 1
+  },
+  "sort_order": 0
+ },
+ {
+  "code": "writing_explorer",
+  "name": "Writing Explorer",
+  "description": "Submit your first writing task for evaluation.",
+  "icon": "pen-line",
+  "category": "writing",
+  "tier": "bronze",
+  "xp_reward": 50,
+  "criteria": {
+   "metric": "writing_submissions",
+   "value": 1
+  },
+  "sort_order": 1
+ },
+ {
+  "code": "writing_marathon",
+  "name": "Writing Marathon",
+  "description": "Submit 10 writing tasks.",
+  "icon": "notebook-pen",
+  "category": "writing",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "writing_submissions",
+   "value": 10
+  },
+  "sort_order": 2
+ },
+ {
+  "code": "band_7_writer",
+  "name": "Band 7 Writer",
+  "description": "Achieve an AI Estimated Band of 7.0 or higher in writing.",
+  "icon": "trophy",
+  "category": "writing",
+  "tier": "gold",
+  "xp_reward": 300,
+  "criteria": {
+   "metric": "writing_band_max",
+   "value": 7.0
+  },
+  "sort_order": 3
+ },
+ {
+  "code": "speaking_brave",
+  "name": "Speaking Brave",
+  "description": "Complete your first speaking session.",
+  "icon": "mic",
+  "category": "speaking",
+  "tier": "bronze",
+  "xp_reward": 75,
+  "criteria": {
+   "metric": "speaking_sessions",
+   "value": 1
+  },
+  "sort_order": 4
+ },
+ {
+  "code": "fluent_voice",
+  "name": "Fluent Voice",
+  "description": "Complete 5 speaking sessions.",
+  "icon": "audio-lines",
+  "category": "speaking",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "speaking_sessions",
+   "value": 5
+  },
+  "sort_order": 5
+ },
+ {
+  "code": "reading_master",
+  "name": "Reading Master",
+  "description": "Score 85% or more on 5 reading exercises.",
+  "icon": "book-open-check",
+  "category": "reading",
+  "tier": "gold",
+  "xp_reward": 200,
+  "criteria": {
+   "metric": "reading_high_scores",
+   "value": 5
+  },
+  "sort_order": 6
+ },
+ {
+  "code": "page_turner",
+  "name": "Page Turner",
+  "description": "Complete 3 reading exercises.",
+  "icon": "book-open",
+  "category": "reading",
+  "tier": "bronze",
+  "xp_reward": 60,
+  "criteria": {
+   "metric": "reading_attempts",
+   "value": 3
+  },
+  "sort_order": 7
+ },
+ {
+  "code": "listening_hunter",
+  "name": "Listening Hunter",
+  "description": "Complete 5 listening exercises.",
+  "icon": "headphones",
+  "category": "listening",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "listening_attempts",
+   "value": 5
+  },
+  "sort_order": 8
+ },
+ {
+  "code": "vocabulary_builder",
+  "name": "Vocabulary Builder",
+  "description": "Get 25 words to Familiar or above.",
+  "icon": "library",
+  "category": "vocabulary",
+  "tier": "bronze",
+  "xp_reward": 100,
+  "criteria": {
+   "metric": "vocab_known",
+   "value": 25
+  },
+  "sort_order": 9
+ },
+ {
+  "code": "word_wizard",
+  "name": "Word Wizard",
+  "description": "Master 50 words.",
+  "icon": "sparkles",
+  "category": "vocabulary",
+  "tier": "gold",
+  "xp_reward": 250,
+  "criteria": {
+   "metric": "vocab_mastered",
+   "value": 50
+  },
+  "sort_order": 10
+ },
+ {
+  "code": "grammar_guardian",
+  "name": "Grammar Guardian",
+  "description": "Score 80% or more on 5 grammar drills or repair challenges.",
+  "icon": "shield-check",
+  "category": "grammar",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "grammar_high_scores",
+   "value": 5
+  },
+  "sort_order": 11
+ },
+ {
+  "code": "mistake_crusher",
+  "name": "Mistake Crusher",
+  "description": "Master 10 of your tracked mistakes.",
+  "icon": "hammer",
+  "category": "grammar",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "mistakes_mastered",
+   "value": 10
+  },
+  "sort_order": 12
+ },
+ {
+  "code": "on_a_roll",
+  "name": "On a Roll",
+  "description": "Practise 3 days in a row.",
+  "icon": "flame",
+  "category": "consistency",
+  "tier": "bronze",
+  "xp_reward": 50,
+  "criteria": {
+   "metric": "streak",
+   "value": 3
+  },
+  "sort_order": 13
+ },
+ {
+  "code": "streak_7",
+  "name": "7-Day Streak",
+  "description": "Practise 7 days in a row.",
+  "icon": "flame",
+  "category": "consistency",
+  "tier": "silver",
+  "xp_reward": 100,
+  "criteria": {
+   "metric": "streak",
+   "value": 7
+  },
+  "sort_order": 14
+ },
+ {
+  "code": "streak_30",
+  "name": "30-Day Streak",
+  "description": "Practise 30 days in a row.",
+  "icon": "flame",
+  "category": "consistency",
+  "tier": "gold",
+  "xp_reward": 300,
+  "criteria": {
+   "metric": "streak",
+   "value": 30
+  },
+  "sort_order": 15
+ },
+ {
+  "code": "mission_accomplished",
+  "name": "Mission Accomplished",
+  "description": "Complete a daily mission.",
+  "icon": "target",
+  "category": "consistency",
+  "tier": "bronze",
+  "xp_reward": 50,
+  "criteria": {
+   "metric": "missions_completed",
+   "value": 1
+  },
+  "sort_order": 16
+ },
+ {
+  "code": "mission_veteran",
+  "name": "Mission Veteran",
+  "description": "Complete 10 daily missions.",
+  "icon": "medal",
+  "category": "consistency",
+  "tier": "silver",
+  "xp_reward": 200,
+  "criteria": {
+   "metric": "missions_completed",
+   "value": 10
+  },
+  "sort_order": 17
+ },
+ {
+  "code": "band_climber",
+  "name": "Band Climber",
+  "description": "Raise your AI Estimated overall band by 0.5 since your diagnostic.",
+  "icon": "trending-up",
+  "category": "milestone",
+  "tier": "gold",
+  "xp_reward": 250,
+  "criteria": {
+   "metric": "band_improvement",
+   "value": 0.5
+  },
+  "sort_order": 18
+ },
+ {
+  "code": "language_builder",
+  "name": "Language Builder",
+  "description": "Reach level 5.",
+  "icon": "blocks",
+  "category": "milestone",
+  "tier": "silver",
+  "xp_reward": 100,
+  "criteria": {
+   "metric": "level",
+   "value": 5
+  },
+  "sort_order": 19
+ },
+ {
+  "code": "fluent_challenger",
+  "name": "Fluent Challenger",
+  "description": "Reach level 10.",
+  "icon": "mountain",
+  "category": "milestone",
+  "tier": "gold",
+  "xp_reward": 300,
+  "criteria": {
+   "metric": "level",
+   "value": 10
+  },
+  "sort_order": 20
+ },
+ {
+  "code": "curious_mind",
+  "name": "Curious Mind",
+  "description": "Ask the SI Tutor 10 questions.",
+  "icon": "message-circle-question",
+  "category": "milestone",
+  "tier": "bronze",
+  "xp_reward": 50,
+  "criteria": {
+   "metric": "tutor_messages",
+   "value": 10
+  },
+  "sort_order": 21
+ },
+ {
+  "code": "all_rounder",
+  "name": "All-Rounder",
+  "description": "Practise 4 different skills in one week.",
+  "icon": "orbit",
+  "category": "consistency",
+  "tier": "silver",
+  "xp_reward": 150,
+  "criteria": {
+   "metric": "skills_this_week",
+   "value": 4
+  },
+  "sort_order": 22
+ },
+ {
+  "code": "weekly_champion",
+  "name": "Weekly Champion",
+  "description": "Complete 3 weekly challenges.",
+  "icon": "crown",
+  "category": "consistency",
+  "tier": "gold",
+  "xp_reward": 200,
+  "criteria": {
+   "metric": "challenges_completed",
+   "value": 3
+  },
+  "sort_order": 23
+ }
+]

@@ -1,0 +1,23 @@
+[project]
+name = "linguasi-backend"
+version = "1.0.0"
+description = "LinguaSI API - FastAPI backend and SI Core intelligence layer"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 160
+target-version = "py311"
+extend-exclude = ["storage"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+# Long user-facing strings are kept on one line for readability; the formatter wraps code.
+ignore = ["B008", "SIM108", "E741", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

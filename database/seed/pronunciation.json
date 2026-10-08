@@ -1,0 +1,74 @@
+[
+ {
+  "focus": "th_sounds",
+  "title": "The 'th' sounds /θ/ and /ð/",
+  "sentences": [
+   "I think three thousand people were there.",
+   "The weather this month is better than last month.",
+   "Thank you for thinking of them."
+  ]
+ },
+ {
+  "focus": "v_w",
+  "title": "/v/ and /w/",
+  "sentences": [
+   "We visited a very wide valley.",
+   "Vegetables are very worthwhile.",
+   "The wind was west of the village."
+  ]
+ },
+ {
+  "focus": "ed_endings",
+  "title": "-ed endings: /t/, /d/ and /ɪd/",
+  "sentences": [
+   "She walked, played and waited.",
+   "The prices increased and then stabilised.",
+   "We started, finished and relaxed."
+  ]
+ },
+ {
+  "focus": "word_stress",
+  "title": "Word stress",
+  "sentences": [
+   "Photograph, photographer, photographic.",
+   "The economy needs economic reform.",
+   "Develop, development, developmental."
+  ]
+ },
+ {
+  "focus": "linking",
+  "title": "Linking words together",
+  "sentences": [
+   "An apple a day.",
+   "Turn it off and on again.",
+   "What are you up to at the weekend?"
+  ]
+ },
+ {
+  "focus": "minimal_pairs",
+  "title": "Short and long vowels",
+  "sentences": [
+   "The ship carried sheep across the sea.",
+   "Please sit in this seat.",
+   "He will leave the live music early."
+  ]
+ },
+ {
+  "focus": "sentence_stress",
+  "title": "Sentence stress and rhythm",
+  "sentences": [
+   "I'd LIKE to STUDY ABROAD next YEAR.",
+   "The MAIN REASON is the COST.",
+   "It's NOT the PRICE, it's the QUALITY."
+  ]
+ },
+ {
+  "focus": "intonation_questions",
+  "title": "Question intonation",
+  "sentences": [
+   "Are you coming to the party?",
+   "Where do you live?",
+   "You're a student, aren't you?"
+  ]
+ }
+]

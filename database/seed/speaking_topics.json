@@ -1,0 +1,438 @@
+{
+ "part1": [
+  {
+   "key": "p1-hometown",
+   "topic": "hometown",
+   "questions": [
+    "Where is your hometown?",
+    "What do you like most about your hometown?",
+    "Has your hometown changed much since you were a child?",
+    "Would you like to live there in the future?"
+   ],
+   "tags": [
+    "hometown"
+   ]
+  },
+  {
+   "key": "p1-work_study",
+   "topic": "work study",
+   "questions": [
+    "Do you work or are you a student?",
+    "What do you enjoy most about your work or studies?",
+    "Is there anything you find difficult about it?",
+    "What would you like to do in the future?"
+   ],
+   "tags": [
+    "work_study"
+   ]
+  },
+  {
+   "key": "p1-free_time",
+   "topic": "free time",
+   "questions": [
+    "What do you usually do in your free time?",
+    "Do you prefer spending free time alone or with other people?",
+    "Have your hobbies changed since you were younger?",
+    "Is there a new hobby you would like to try?"
+   ],
+   "tags": [
+    "free_time"
+   ]
+  },
+  {
+   "key": "p1-food",
+   "topic": "food",
+   "questions": [
+    "What kind of food do you enjoy eating?",
+    "Do you prefer eating at home or in restaurants?",
+    "Can you cook? What do you like to make?",
+    "Is there any food you disliked as a child but enjoy now?"
+   ],
+   "tags": [
+    "food"
+   ]
+  },
+  {
+   "key": "p1-weather",
+   "topic": "weather",
+   "questions": [
+    "What's the weather usually like where you live?",
+    "What's your favourite season, and why?",
+    "Does the weather ever affect your mood?",
+    "Do you check the weather forecast every day?"
+   ],
+   "tags": [
+    "weather"
+   ]
+  },
+  {
+   "key": "p1-technology",
+   "topic": "technology",
+   "questions": [
+    "How often do you use your phone each day?",
+    "What do you mostly use the internet for?",
+    "Is there any piece of technology you couldn't live without?",
+    "Do you think you spend too much time online?"
+   ],
+   "tags": [
+    "technology"
+   ]
+  },
+  {
+   "key": "p1-reading",
+   "topic": "reading",
+   "questions": [
+    "Do you enjoy reading?",
+    "What kind of things do you like to read?",
+    "Did you read a lot when you were a child?",
+    "Do you prefer printed books or e-books?"
+   ],
+   "tags": [
+    "reading"
+   ]
+  },
+  {
+   "key": "p1-music",
+   "topic": "music",
+   "questions": [
+    "What kind of music do you like?",
+    "When do you usually listen to music?",
+    "Have you ever learned to play a musical instrument?",
+    "Is music important in your culture?"
+   ],
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "key": "p1-sport",
+   "topic": "sport",
+   "questions": [
+    "Do you play any sports?",
+    "What sports are popular in your country?",
+    "Did you do much sport at school?",
+    "Do you prefer watching sport or playing it?"
+   ],
+   "tags": [
+    "sport"
+   ]
+  },
+  {
+   "key": "p1-travel",
+   "topic": "travel",
+   "questions": [
+    "Do you like travelling?",
+    "What kind of places do you like to visit?",
+    "Do you prefer travelling alone or with others?",
+    "Where would you like to travel in the future?"
+   ],
+   "tags": [
+    "travel"
+   ]
+  },
+  {
+   "key": "p1-shopping",
+   "topic": "shopping",
+   "questions": [
+    "Do you enjoy shopping?",
+    "Do you prefer shopping online or in shops?",
+    "What was the last thing you bought?",
+    "Are there any shops you visit regularly?"
+   ],
+   "tags": [
+    "shopping"
+   ]
+  },
+  {
+   "key": "p1-friends",
+   "topic": "friends",
+   "questions": [
+    "Do you have a lot of friends?",
+    "How do you usually spend time with your friends?",
+    "Is it easy to make new friends where you live?",
+    "What makes someone a good friend?"
+   ],
+   "tags": [
+    "friends"
+   ]
+  }
+ ],
+ "cue_cards": [
+  {
+   "key": "cc-skill-to-learn",
+   "topic": "A skill you would like to learn",
+   "cue_card": {
+    "title": "A skill you would like to learn",
+    "prompt": "Describe a skill you would like to learn.",
+    "bullets": [
+     "what the skill is",
+     "why you want to learn it",
+     "how you would learn it",
+     "and explain how this skill would help you"
+    ],
+    "rounding_off": "Do you think you will learn it soon?"
+   },
+   "part3_questions": [
+    "What skills do young people most need to learn today?",
+    "Should schools teach more practical skills?",
+    "Is it better to learn a skill from a teacher or by yourself online?",
+    "Are some skills becoming less important because of technology?",
+    "Do people find it harder to learn new skills as they get older?"
+   ],
+   "tags": [
+    "education",
+    "work"
+   ]
+  },
+  {
+   "key": "cc-peaceful-place",
+   "topic": "A peaceful place",
+   "cue_card": {
+    "title": "A peaceful place",
+    "prompt": "Describe a place you have visited that you found very peaceful.",
+    "bullets": [
+     "where it is",
+     "when you went there",
+     "what you did there",
+     "and explain why you found it peaceful"
+    ],
+    "rounding_off": "Would you like to go back there?"
+   },
+   "part3_questions": [
+    "Why do people feel stressed in modern life?",
+    "Is it important for cities to have green spaces?",
+    "Do you think people today spend enough time in nature?",
+    "How can workplaces help employees relax?"
+   ],
+   "tags": [
+    "environment",
+    "travel"
+   ]
+  },
+  {
+   "key": "cc-influential-person",
+   "topic": "A person who influenced you",
+   "cue_card": {
+    "title": "A person who influenced you",
+    "prompt": "Describe a person who has had an important influence on your life.",
+    "bullets": [
+     "who this person is",
+     "how you know them",
+     "what they did",
+     "and explain how they influenced you"
+    ],
+    "rounding_off": "Do you still keep in touch with this person?"
+   },
+   "part3_questions": [
+    "Who are the most important role models for children today?",
+    "Do celebrities have too much influence on young people?",
+    "Is the influence of parents decreasing?",
+    "What qualities make someone a good leader?"
+   ],
+   "tags": [
+    "society",
+    "education"
+   ]
+  },
+  {
+   "key": "cc-thought-provoking-story",
+   "topic": "A book or film that made you think",
+   "cue_card": {
+    "title": "A book or film that made you think",
+    "prompt": "Describe a book or film that made you think deeply.",
+    "bullets": [
+     "what it was",
+     "when you read or watched it",
+     "what it was about",
+     "and explain why it made you think"
+    ],
+    "rounding_off": "Would you recommend it to others?"
+   },
+   "part3_questions": [
+    "Do people read less than they used to?",
+    "Are films a good way to learn about other cultures?",
+    "Should children's reading be controlled by parents?",
+    "Will printed books disappear in the future?"
+   ],
+   "tags": [
+    "culture",
+    "media"
+   ]
+  },
+  {
+   "key": "cc-helped-someone",
+   "topic": "A time you helped someone",
+   "cue_card": {
+    "title": "A time you helped someone",
+    "prompt": "Describe a time when you helped someone.",
+    "bullets": [
+     "who you helped",
+     "what the situation was",
+     "what you did",
+     "and explain how you felt afterwards"
+    ],
+    "rounding_off": "Do you often help other people?"
+   },
+   "part3_questions": [
+    "Why do some people volunteer their time to help others?",
+    "Should schools require students to do community service?",
+    "Are people less helpful to strangers than in the past?",
+    "What can governments do to encourage people to help their communities?"
+   ],
+   "tags": [
+    "society"
+   ]
+  },
+  {
+   "key": "cc-everyday-object",
+   "topic": "An object you use every day",
+   "cue_card": {
+    "title": "An object you use every day",
+    "prompt": "Describe an object that you use every day.",
+    "bullets": [
+     "what it is",
+     "when you got it",
+     "how you use it",
+     "and explain why it is important to you"
+    ],
+    "rounding_off": "Would it be hard to live without it?"
+   },
+   "part3_questions": [
+    "Do people buy too many things they don't need?",
+    "How has technology changed the objects people use at home?",
+    "Is good design important in everyday products?",
+    "Should products be made to last longer?"
+   ],
+   "tags": [
+    "technology",
+    "daily_life"
+   ]
+  },
+  {
+   "key": "cc-memorable-journey",
+   "topic": "A memorable journey",
+   "cue_card": {
+    "title": "A memorable journey",
+    "prompt": "Describe a memorable journey you have taken.",
+    "bullets": [
+     "where you went",
+     "who you were with",
+     "how you travelled",
+     "and explain why it was memorable"
+    ],
+    "rounding_off": "Would you make the same journey again?"
+   },
+   "part3_questions": [
+    "How has travel changed in the last few decades?",
+    "What are the effects of mass tourism on popular destinations?",
+    "Should people travel less to protect the environment?",
+    "What will transport be like in the future?"
+   ],
+   "tags": [
+    "travel",
+    "environment"
+   ]
+  },
+  {
+   "key": "cc-goal-achieved",
+   "topic": "A goal you achieved",
+   "cue_card": {
+    "title": "A goal you achieved",
+    "prompt": "Describe a goal that you set and achieved.",
+    "bullets": [
+     "what the goal was",
+     "why you set it",
+     "what you did to achieve it",
+     "and explain how you felt when you achieved it"
+    ],
+    "rounding_off": "What is your next goal?"
+   },
+   "part3_questions": [
+    "Is it important for young people to set goals?",
+    "Do people measure success too much by money?",
+    "How should people deal with failure?",
+    "Are competitive environments good for children?"
+   ],
+   "tags": [
+    "education",
+    "work"
+   ]
+  },
+  {
+   "key": "cc-celebration",
+   "topic": "A celebration in your country",
+   "cue_card": {
+    "title": "A celebration in your country",
+    "prompt": "Describe a celebration or festival that is important in your country.",
+    "bullets": [
+     "what it is",
+     "when it happens",
+     "what people do",
+     "and explain why it is important"
+    ],
+    "rounding_off": "Do you enjoy this celebration?"
+   },
+   "part3_questions": [
+    "Why are traditional celebrations important?",
+    "Are traditional festivals changing because of globalisation?",
+    "Do young people value traditions as much as older people?",
+    "Should governments spend money on public celebrations?"
+   ],
+   "tags": [
+    "culture"
+   ]
+  },
+  {
+   "key": "cc-useful-app",
+   "topic": "A useful website or app",
+   "cue_card": {
+    "title": "A useful website or app",
+    "prompt": "Describe a website or app that you find useful.",
+    "bullets": [
+     "what it is",
+     "how you found it",
+     "what you use it for",
+     "and explain why it is useful to you"
+    ],
+    "rounding_off": "Have you recommended it to anyone?"
+   },
+   "part3_questions": [
+    "How has the internet changed the way people learn?",
+    "Should children's use of the internet be limited?",
+    "Is online privacy something people worry about enough?",
+    "How can older people be helped to use new technology?"
+   ],
+   "tags": [
+    "technology"
+   ]
+  }
+ ],
+ "followups": {
+  "part1": [
+   "Why is that?",
+   "Can you give me an example?",
+   "Has that changed since you were younger?",
+   "How do you feel about that?"
+  ],
+  "part3": [
+   "Why do you think that is?",
+   "Could you give me an example?",
+   "Do you think this will change in the future?",
+   "How does this compare with the situation in the past?",
+   "What might be the disadvantages of that?"
+  ]
+ },
+ "examiner_lines": {
+  "intro": "Good {time_of_day}. This is a practice speaking test in the style of IELTS. In this first part, I'd like to ask you some questions about yourself.",
+  "part2_intro": "Now I'm going to give you a topic, and I'd like you to talk about it for one to two minutes. You have one minute to think about what you're going to say. You can make notes if you wish.",
+  "part3_intro": "We've been talking about {topic}. I'd like to discuss with you one or two more general questions related to this.",
+  "acknowledgements": [
+   "Thank you.",
+   "I see.",
+   "Alright.",
+   "Thank you for that.",
+   "OK."
+  ],
+  "closing": "Thank you. That is the end of the speaking test."
+ }
+}

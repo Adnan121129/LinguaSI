@@ -1,0 +1,169 @@
+[
+ {
+  "id": "cafe-order",
+  "title": "Ordering at a café",
+  "level": "A2",
+  "ai_role": "a friendly café server",
+  "goal": "Order a drink and something to eat, ask a question about the menu and pay.",
+  "opening": "Hi there! Welcome to Corner Café. What can I get for you today?",
+  "script": [
+   "Great choice. Would you like that hot or iced?",
+   "Anything to eat with that? The lemon cake is very popular today.",
+   "Is that for here or to take away?",
+   "That comes to six pounds fifty. Would you like to pay by card?",
+   "Here's your receipt. Enjoy your day!"
+  ],
+  "phrases": [
+   "Could I have...?",
+   "What do you recommend?",
+   "Is there any...?",
+   "I'll pay by card, please."
+  ]
+ },
+ {
+  "id": "job-interview",
+  "title": "A job interview",
+  "level": "B2",
+  "ai_role": "an interviewer for an assistant manager job at a bookshop",
+  "goal": "Answer interview questions about your experience, strengths and goals.",
+  "opening": "Thank you for coming in today. To start, could you tell me a little about yourself?",
+  "script": [
+   "Interesting. What do you think is your greatest strength?",
+   "Can you tell me about a time you solved a problem at work or university?",
+   "Why would you like to work for our company?",
+   "Where do you see yourself in five years?",
+   "Thank you. Do you have any questions for me?"
+  ],
+  "phrases": [
+   "I'd say my main strength is...",
+   "For example, when I...",
+   "I'm particularly interested in...",
+   "Could you tell me more about...?"
+  ]
+ },
+ {
+  "id": "doctor-appointment",
+  "title": "Booking a doctor's appointment",
+  "level": "B1",
+  "ai_role": "a receptionist at a medical centre",
+  "goal": "Book an appointment, describe your symptoms briefly and confirm the time.",
+  "opening": "Good morning, Green Lane Medical Centre. How can I help you?",
+  "script": [
+   "Can I take your name and date of birth, please?",
+   "And what seems to be the problem?",
+   "How long have you had these symptoms?",
+   "The doctor can see you tomorrow at ten fifteen or Thursday at three. Which is better?",
+   "That's booked. Please arrive ten minutes early."
+  ],
+  "phrases": [
+   "I'd like to make an appointment.",
+   "I've had a ... for about ... days.",
+   "Is there anything earlier?",
+   "That would be perfect, thank you."
+  ]
+ },
+ {
+  "id": "small-talk",
+  "title": "Small talk with a new colleague",
+  "level": "B1",
+  "ai_role": "a friendly new colleague at work",
+  "goal": "Keep a light conversation going by answering and asking follow-up questions.",
+  "opening": "Hi! I don't think we've met yet - I've just joined the marketing team. How long have you been working here?",
+  "script": [
+   "Oh nice. Do you live near the office?",
+   "What do you usually do at the weekend?",
+   "That sounds fun. Have you been anywhere interesting recently?",
+   "I'd love to go there. Any tips?",
+   "Great talking to you. Shall we grab lunch sometime this week?"
+  ],
+  "phrases": [
+   "How about you?",
+   "That sounds great!",
+   "Really? What was it like?",
+   "I've been meaning to try that."
+  ]
+ },
+ {
+  "id": "return-product",
+  "title": "Returning a faulty product",
+  "level": "B1",
+  "ai_role": "a customer service assistant in an electronics shop",
+  "goal": "Explain what is wrong with the product and ask for a refund or replacement.",
+  "opening": "Hello, how can I help you today?",
+  "script": [
+   "I'm sorry to hear that. When did you buy it?",
+   "Do you have the receipt with you?",
+   "Would you prefer a replacement or a refund?",
+   "No problem. I'll just need you to sign here.",
+   "All done. Is there anything else I can help with?"
+  ],
+  "phrases": [
+   "I bought this ... and it doesn't work.",
+   "It stopped working after...",
+   "I'd like a refund, please.",
+   "Could I exchange it for...?"
+  ]
+ },
+ {
+  "id": "seminar-discussion",
+  "title": "University seminar discussion",
+  "level": "C1",
+  "ai_role": "a university tutor leading a seminar on technology and society",
+  "goal": "Share and justify opinions, respond to counterarguments and use academic language.",
+  "opening": "Today's topic is whether social media has done more harm than good to public debate. What's your initial view?",
+  "script": [
+   "That's an interesting position. What evidence would support that?",
+   "Some would argue the opposite - that social media gives a voice to people who were previously ignored. How would you respond?",
+   "Do you think regulation is the answer, or should platforms regulate themselves?",
+   "How might this change over the next decade?",
+   "Good. Could you summarise your position in one or two sentences?"
+  ],
+  "phrases": [
+   "I'd argue that...",
+   "There is evidence to suggest...",
+   "That's a valid point; however...",
+   "To put it another way..."
+  ]
+ },
+ {
+  "id": "directions",
+  "title": "Asking for directions",
+  "level": "A2",
+  "ai_role": "a helpful local person in the city centre",
+  "goal": "Ask how to get to the train station and check the details.",
+  "opening": "Hi, you look a bit lost. Can I help you find somewhere?",
+  "script": [
+   "The train station? Sure. Go straight along this road until you reach the bank.",
+   "Then turn left and walk past the museum.",
+   "It's about ten minutes on foot, or you can take bus number twelve.",
+   "No problem at all. Have a good trip!"
+  ],
+  "phrases": [
+   "Excuse me, how do I get to...?",
+   "Is it far from here?",
+   "Could you say that again, please?",
+   "Thanks for your help."
+  ]
+ },
+ {
+  "id": "hotel-checkin",
+  "title": "Checking into a hotel",
+  "level": "A2",
+  "ai_role": "a hotel receptionist",
+  "goal": "Check in, ask about breakfast and Wi-Fi, and request a late checkout.",
+  "opening": "Good evening and welcome to the Riverside Hotel. Do you have a reservation?",
+  "script": [
+   "Lovely. Could I see your passport or ID, please?",
+   "You're in room 304 on the third floor. Breakfast is served from seven to ten.",
+   "The Wi-Fi password is on the card in your room.",
+   "A late checkout is possible until one o'clock for a small fee. Would you like that?",
+   "Here's your key. Enjoy your stay!"
+  ],
+  "phrases": [
+   "I have a reservation under the name...",
+   "What time is breakfast?",
+   "Is there Wi-Fi in the room?",
+   "Would it be possible to...?"
+  ]
+ }
+]
