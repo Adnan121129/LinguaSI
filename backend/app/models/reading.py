@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,6 +29,7 @@ class ReadingPassage(CreatedAtMixin, Base):
     quality: Mapped[dict] = mapped_column(JSONB, default=dict)  # validation report
     source: Mapped[str] = mapped_column(String(20), default="seed")  # seed | ai
     created_for_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
     questions: Mapped[list[ReadingQuestion]] = relationship(back_populates="passage", cascade="all, delete-orphan", order_by="ReadingQuestion.position")
 

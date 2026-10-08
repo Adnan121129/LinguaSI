@@ -13,6 +13,7 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import RequestContextMiddleware, configure_logging
+from app.seed.loader import ensure_seed_content
 
 logger = logging.getLogger("linguasi")
 
@@ -44,8 +45,6 @@ async def lifespan(app: FastAPI):
         logger.warning("AI_PROVIDER=%s but no API key is configured; using the mock AI provider", settings.ai_provider)
     if settings.auto_seed and settings.environment != "test":
         try:
-            from app.seed.loader import ensure_seed_content
-
             ensure_seed_content()
         except Exception:
             logger.exception("Automatic seed loading failed; run `python -m app.cli seed` manually")

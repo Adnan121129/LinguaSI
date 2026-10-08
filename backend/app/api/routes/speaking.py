@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
 from app.api.deps import Pagination, ai_rate_limit, get_current_user
 from app.core.database import get_db
@@ -46,7 +47,9 @@ async def respond(
     db: Session = Depends(get_db),
 ) -> RespondResponse:
     audio_bytes = await audio.read() if audio is not None else None
-    t, nxt = speaking_service.respond(
+    # The service does blocking database and AI work, so it runs in the threadpool, not on the event loop.
+    t, nxt = await run_in_threadpool(
+        speaking_service.respond,
         db,
         user,
         session_id,

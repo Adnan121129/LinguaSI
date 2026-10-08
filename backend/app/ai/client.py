@@ -19,6 +19,8 @@ from app.ai import prompts
 from app.ai.providers.base import AIError, AIMalformedOutputError, AIMessage, AIProvider, AIRequest, AIResult
 from app.ai.tasks import TASKS
 from app.core.config import settings
+from app.core.database import SessionLocal
+from app.models import AIInteractionLog
 
 logger = logging.getLogger("linguasi.ai")
 
@@ -135,7 +137,8 @@ class AIClient:
 
     def generate_model(self, task: str, variables: dict[str, Any], response_model: type[M], **kwargs: Any) -> tuple[M, AIResult]:
         result = self.generate(task, variables, response_model=response_model, **kwargs)
-        assert result.parsed is not None
+        if result.parsed is None:
+            raise AIMalformedOutputError(f"{task}: provider returned no structured output")
         return result.parsed, result  # type: ignore[return-value]
 
     def _log(
@@ -169,9 +172,6 @@ class AIClient:
                 "response_preview": (result.text or "")[:2000],
             }
         try:
-            from app.core.database import SessionLocal
-            from app.models import AIInteractionLog
-
             db = SessionLocal()
             try:
                 db.add(

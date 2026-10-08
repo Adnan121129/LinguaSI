@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.agents import si_core, vocabulary_engine
+from app.agents import error_analyst, si_core, vocabulary_engine
 from app.agents.error_analyst import ErrorRecord
 from app.agents.progress_analyst import SkillResult
 from app.ai.client import ai_client
@@ -16,7 +16,7 @@ from app.ai.schemas import VocabularyExplanationAI
 from app.analytics import srs
 from app.core.clock import ensure_aware, utcnow
 from app.core.errors import AIUnavailableError, NotFoundError
-from app.models import ProgressSnapshot, User, UserVocabulary, VocabularyItem, VocabularyReview
+from app.models import Mistake, ProgressSnapshot, User, UserVocabulary, VocabularyItem, VocabularyReview
 from app.repositories import stats
 from app.services import gamification
 
@@ -68,6 +68,14 @@ def complete_session(db: Session, user: User, started_at: datetime, duration_sec
         return {"reviews": 0, "correct": 0, "accuracy": None, "outcome": None}
     correct = sum(1 for r, _ in reviews if r.correct)
     accuracy = round(correct / len(reviews) * 100, 1)
+    # Words the learner previously missed and now recalls count as practice on that tracked mistake.
+    recalled = {item.id for r, item in reviews if r.correct}
+    if recalled:
+        signatures = {f"vocabulary_recall:word:{item_id}": item_id for item_id in recalled}
+        open_mistakes = db.scalars(select(Mistake).where(Mistake.user_id == user.id, Mistake.signature.in_(signatures), Mistake.status != "mastered")).all()
+        mastered_words = sum(1 for m in open_mistakes if error_analyst.record_practice_result(m, True))
+    else:
+        mastered_words = 0
     errors = [
         ErrorRecord(
             source="vocabulary",
@@ -96,10 +104,14 @@ def complete_session(db: Session, user: User, started_at: datetime, duration_sec
             skill_results=[SkillResult("vocabulary", accuracy, None, None)],
             errors=errors,
             completes_kinds={"vocabulary"},
+            # Each answer already earned XP; finishing a proper session earns a small completion bonus.
+            xp=[(5, "vocab_session", f"Vocabulary session completed ({len(reviews)} words)")] if len(reviews) >= 5 else [],
             meta={"reviews": len(reviews), "correct": correct},
             started_at=started,
         ),
     )
+    if mastered_words:
+        outcome.si_actions.append(f"{mastered_words} previously missed word{'s' if mastered_words > 1 else ''} now recalled reliably - marked as mastered.")
     return {"reviews": len(reviews), "correct": correct, "accuracy": accuracy, "outcome": outcome}
 
 

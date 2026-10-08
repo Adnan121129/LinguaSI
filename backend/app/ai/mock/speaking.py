@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from collections import Counter
 
 from app.ai.mock import mock_handler
 from app.ai.schemas import (
@@ -21,7 +22,7 @@ from app.services.content import speaking_bank
 @mock_handler("speaking_plan")
 def plan(ctx: dict) -> SpeakingPlanAI:
     rng = random.Random(ctx.get("seed", 0))
-    bank = speaking_bank()
+    bank = ctx.get("bank") or speaking_bank()
     avoid = set(ctx.get("avoid_topics") or [])
     themes = set(ctx.get("themes") or [])
     frames = [f for f in bank["part1"] if f["topic"] not in avoid] or bank["part1"]
@@ -52,7 +53,8 @@ def next_turn(ctx: dict) -> SpeakingTurnAI:
     if part == 1 and words < 15:
         options = bank["followups"]["part1"]
         return SpeakingTurnAI(action="followup", acknowledgement=ack, followup_question=options[turn % len(options)])
-    if part == 3 and words < 40:
+    if part == 3 and (words < 40 or asked == 0):
+        # Like a real examiner, probe at least once in the discussion, and whenever an answer is underdeveloped.
         options = bank["followups"]["part3"]
         return SpeakingTurnAI(action="followup", acknowledgement=ack, followup_question=options[turn % len(options)])
     return SpeakingTurnAI(action="next", acknowledgement=ack)
@@ -65,8 +67,6 @@ def evaluate(ctx: dict) -> SpeakingEvaluationAI:
     used = ctx.get("expressions_used", [])
     h = heuristic_speaking(agg, errors, expressions_used=len(used))
     grammar_patterns = []
-    from collections import Counter
-
     for sub, count in Counter(e.subcategory for e in errors if e.category == "grammar").most_common(3):
         grammar_patterns.append(f"{sub.replace('_', ' ').capitalize()} errors appeared {count} time{'s' if count > 1 else ''}.")
     if agg.complexity_per_100 >= 3:

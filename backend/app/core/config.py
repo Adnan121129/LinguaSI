@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 DEFAULT_JWT_SECRET = "dev-insecure-secret-change-me-0123456789abcdef"
 
@@ -47,10 +48,11 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 30
     refresh_token_days: int = 30
-    admin_emails: list[str] = Field(default_factory=list)
+    # Comma-separated in the environment (ADMIN_EMAILS=a@x.com,b@y.com); a JSON list also works.
+    admin_emails: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
     # --- HTTP --------------------------------------------------------------
-    cors_origins: list[str] = Field(
+    cors_origins: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
@@ -104,7 +106,7 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             stripped = value.strip()
             if stripped.startswith("["):
-                return value  # JSON list, let pydantic parse it
+                return json.loads(stripped)
             return [item.strip() for item in stripped.split(",") if item.strip()]
         return value
 

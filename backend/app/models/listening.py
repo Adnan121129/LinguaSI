@@ -33,6 +33,7 @@ class ListeningScript(CreatedAtMixin, Base):
     target_vocabulary: Mapped[list] = mapped_column(JSONB, default=list)
     source: Mapped[str] = mapped_column(String(20), default="seed")
     created_for_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
     questions: Mapped[list[ListeningQuestion]] = relationship(back_populates="script", cascade="all, delete-orphan", order_by="ListeningQuestion.position")
 

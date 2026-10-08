@@ -44,7 +44,8 @@ def insights(ctx: dict) -> ProgressInsightsAI:
                 regressions.append(f"{label} dropped from {before:.0f} to {now:.0f} - review recent mistakes in this skill.")
         band = s.get("band")
         if target and band is not None and band < target:
-            gaps.append(f"{label}: AI estimated band {band:g}, {target - band:g} below your target of {target:g}.")
+            gaps.append((target - band, f"{label}: AI estimated band {band:g}, {target - band:g} below your target of {target:g}."))
+    gaps = [text for _, text in sorted(gaps, key=lambda g: -g[0])]  # biggest gap first
     recurring = []
     for t in trends:
         if t["recent"] >= 2:

@@ -115,7 +115,7 @@ def daily_quiz(db: Session, user: User) -> PracticeSet:
 
 
 def sentence_building(db: Session, user: User, count: int = 5) -> PracticeSet:
-    items_pool = list(db.scalars(select(VocabularyItem)))
+    items_pool = list(db.scalars(select(VocabularyItem).where(VocabularyItem.is_active.is_(True))))
     rng = random.Random()
     rng.shuffle(items_pool)
     items = []
@@ -126,7 +126,8 @@ def sentence_building(db: Session, user: User, count: int = 5) -> PracticeSet:
             continue
         # Lower-case the opening word so its capital letter doesn't give the answer away.
         display = tokens[:]
-        if display[0] != "I" and not display[0].isupper():
+        is_acronym = len(display[0]) > 1 and display[0].isupper()  # keep "UK", "IELTS"; lower-case "A", "The"
+        if display[0] != "I" and not is_acronym:
             display[0] = display[0][0].lower() + display[0][1:]
         shuffled = display[:]
         while shuffled == display:

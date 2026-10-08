@@ -33,7 +33,7 @@ _TASKS = [
     TaskSpec("practice_generate", "practice_generator", "practice/generate", "fast", 4000),
     TaskSpec("tutor_chat", "tutor", "tutor/chat", "fast", 2500),
     TaskSpec("conversation_chat", "tutor", "tutor/conversation", "fast", 1500),
-    TaskSpec("plan_daily", "learning_planner", "planner/daily_plan", "strong", 4000),
+    TaskSpec("plan_daily", "learning_planner", "planner/daily_plan", "fast", 4000),
     TaskSpec("progress_insights", "progress_analyst", "planner/progress_insights", "fast", 2500),
 ]
 

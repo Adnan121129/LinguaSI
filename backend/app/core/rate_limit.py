@@ -78,9 +78,11 @@ limiter = _build_limiter()
 
 
 def client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """The peer address. X-Forwarded-For is never read here, because any client can forge it.
+
+    Behind a reverse proxy or the web BFF, Uvicorn's proxy-header support rewrites the peer address
+    from X-Forwarded-For only when the immediate peer is listed in FORWARDED_ALLOW_IPS.
+    """
     return request.client.host if request.client else "unknown"
 
 

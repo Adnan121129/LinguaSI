@@ -112,7 +112,7 @@ def generate(
             db.scalars(
                 select(ReadingPassage)
                 .options(selectinload(ReadingPassage.questions))
-                .where(or_(ReadingPassage.created_for_user_id.is_(None), ReadingPassage.created_for_user_id == user.id))
+                .where(ReadingPassage.is_active.is_(True), or_(ReadingPassage.created_for_user_id.is_(None), ReadingPassage.created_for_user_id == user.id))
             )
         )
         same_module = [p for p in candidates if p.module == module] or candidates

@@ -30,6 +30,7 @@ class WritingTask(CreatedAtMixin, Base):
     source: Mapped[str] = mapped_column(String(20), default="seed")  # seed | ai | template
     seed_key: Mapped[str | None] = mapped_column(String(80), unique=True)
     created_for_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
 class WritingSubmission(TimestampMixin, Base):

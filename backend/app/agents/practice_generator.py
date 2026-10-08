@@ -21,11 +21,13 @@ from sqlalchemy.orm import Session
 
 from app.agents.context import build_context
 from app.ai.client import ai_client
+from app.ai.mock.content import practice as mock_practice
+from app.ai.mock.writing import generate_task as template_generate
 from app.ai.providers.base import AIError
 from app.ai.schemas import ListeningScriptAI, PracticeSetAI, ReadingPassageAI, WritingTaskAI
 from app.analytics.scoring import normalize_completion, normalize_text
 from app.analytics.text import word_count
-from app.core.taxonomy import label_for, practice_topic_for
+from app.core.taxonomy import SUBCATEGORIES, label_for, practice_topic_for
 from app.models import GrammarExercise, Mistake, PracticeSet, User, WritingSubmission, WritingTask
 from app.services.content import kb_entry
 
@@ -96,8 +98,6 @@ def generate_writing_task(
         source = "template" if ai_client.is_mock else "ai"
     except (AIError, ValueError) as exc:
         logger.info("Writing task generation fell back to templates: %s", exc)
-        from app.ai.mock.writing import generate_task as template_generate
-
         parsed = template_generate(mock_context)
         source = "template"
         notice = "AI generation was unavailable, so SI created this task from its original templates."
@@ -189,7 +189,7 @@ def build_practice_set(
         recent_keys = set()
         for ps in db.scalars(select(PracticeSet).where(PracticeSet.user_id == user.id).order_by(PracticeSet.created_at.desc()).limit(3)):
             recent_keys.update(i.get("bank_key") for i in ps.items or [] if i.get("bank_key"))
-        bank = list(db.scalars(select(GrammarExercise).where(GrammarExercise.topic == topic)))
+        bank = list(db.scalars(select(GrammarExercise).where(GrammarExercise.topic == topic, GrammarExercise.is_active.is_(True))))
         rng = random.Random()
         rng.shuffle(bank)
         bank.sort(key=lambda ex: ex.seed_key in recent_keys)
@@ -240,8 +240,6 @@ def build_practice_set(
 
 
 def _subcategories_for_topic(topic: str | None) -> list[str]:
-    from app.core.taxonomy import SUBCATEGORIES
-
     return [s.key for s in SUBCATEGORIES.values() if s.practice_topic == topic]
 
 
@@ -266,8 +264,6 @@ def _generated_items(db: Session, user: User, focus: str, count: int, mistakes: 
             mock_context={"focus": focus, "item_count": count, "mistake_items": [], "seed": user.id},
         )
     except AIError:
-        from app.ai.mock.content import practice as mock_practice
-
         parsed = mock_practice({"focus": focus, "item_count": count, "mistake_items": [], "seed": user.id})
     out = []
     for item in parsed.items:

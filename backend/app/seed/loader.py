@@ -2,7 +2,8 @@
 
 Loads the original content bank from database/seed into PostgreSQL. Running it repeatedly
 updates existing rows in place (matched by seed key / word / code), so the JSON files are the
-source of truth for curated content. Learner data is never touched.
+source of truth for curated content. Learner data is never touched, and curated rows that an
+admin edited in the admin panel (source == "edited") keep their edits.
 """
 
 from __future__ import annotations
@@ -38,6 +39,9 @@ def _load_vocabulary(db: Session) -> int:
     for raw in load_many("vocabulary_"):
         key = (raw["word"].lower(), raw["pos"])
         item = existing.get(key) or VocabularyItem(word=raw["word"], part_of_speech=raw["pos"])
+        count += 1
+        if item.source == "edited":
+            continue
         item.definition = raw["definition"]
         item.example = raw["example"]
         item.synonyms = raw.get("synonyms", [])
@@ -52,7 +56,6 @@ def _load_vocabulary(db: Session) -> int:
         item.source = "seed"
         if key not in existing:
             db.add(item)
-        count += 1
     return count
 
 
@@ -61,6 +64,8 @@ def _load_grammar(db: Session) -> int:
     rows = load_json("grammar_exercises.json")
     for raw in rows:
         ex = existing.get(raw["key"]) or GrammarExercise(seed_key=raw["key"])
+        if ex.source == "edited":
+            continue
         ex.topic = raw["topic"]
         ex.qtype = raw["qtype"]
         ex.prompt = raw["prompt"]
@@ -99,6 +104,8 @@ def _load_reading(db: Session) -> int:
     rows = load_json("reading_passages.json")
     for raw in rows:
         passage = existing.get(raw["key"]) or ReadingPassage(seed_key=raw["key"])
+        if passage.source == "edited":
+            continue
         passage.title = raw["title"]
         passage.topic = raw["topic"]
         passage.module = raw.get("module", "academic")
@@ -120,6 +127,8 @@ def _load_listening(db: Session) -> int:
     rows = load_json("listening_scripts.json")
     for raw in rows:
         script = existing.get(raw["key"]) or ListeningScript(seed_key=raw["key"])
+        if script.source == "edited":
+            continue
         script.title = raw["title"]
         script.topic = raw["topic"]
         script.scenario = raw.get("scenario", "conversation")
@@ -143,6 +152,8 @@ def _load_writing(db: Session) -> int:
     rows = load_json("writing_tasks.json")
     for raw in rows:
         task = existing.get(raw["key"]) or WritingTask(seed_key=raw["key"])
+        if task.source == "edited":
+            continue
         for field in (
             "task_type",
             "module",

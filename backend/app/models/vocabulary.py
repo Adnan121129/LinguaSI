@@ -34,6 +34,7 @@ class VocabularyItem(CreatedAtMixin, Base):
     is_academic: Mapped[bool] = mapped_column(Boolean, default=False)
     is_phrase: Mapped[bool] = mapped_column(Boolean, default=False)  # multi-word collocation / expression
     source: Mapped[str] = mapped_column(String(20), default="seed")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")  # hidden from learners when False
 
 
 class UserVocabulary(Base):

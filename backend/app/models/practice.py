@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,6 +26,7 @@ class GrammarExercise(CreatedAtMixin, Base):
     difficulty: Mapped[int] = mapped_column(Integer, default=2)
     cefr: Mapped[str] = mapped_column(String(4), default="B1")
     source: Mapped[str] = mapped_column(String(20), default="seed")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
 class PracticeSet(TimestampMixin, Base):

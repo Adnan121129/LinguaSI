@@ -205,14 +205,21 @@ def build_candidates(db: Session, user: User, ctx: LearnerContext | None = None)
     if last_speaking:
         fpm = (last_speaking.metrics or {}).get("fillers_per_minute", 0)
         developed = (last_speaking.metrics or {}).get("developed_ratio", 1)
-        if fpm > 4 or (last_speaking.hesitation or {}).get("level") == "high":
+        hesitation = last_speaking.hesitation or {}
+        if fpm > 4 or hesitation.get("level") == "high":
+            if fpm > 4:
+                evidence = f"Your last speaking session had about {fpm:.1f} filler words per minute."
+            elif hesitation.get("measured"):
+                evidence = f"Your last speaking session had {hesitation.get('long_pauses', 0)} pauses longer than two seconds."
+            else:
+                evidence = "Your last speaking session showed frequent hesitation."
             out.append(
                 Candidate(
                     "speaking_fluency",
                     "speaking",
                     "Short speaking drill: smooth Part 1 answers",
                     "Three Part 1 questions focusing on fewer fillers and pauses.",
-                    f"Your last speaking session had about {fpm:.1f} filler words per minute. Short, frequent drills build fluency faster than occasional long tests.",
+                    f"{evidence} Short, frequent drills build fluency faster than occasional long tests.",
                     0.78,
                     "/speaking?mode=part1",
                     8,
@@ -499,6 +506,16 @@ MISSION_TASKS = {
     "lab_sessions": ("Do one English Lab activity", "/lab", 15, 8),
 }
 
+METRIC_FOCUS = {
+    "grammar_items": "Grammar accuracy",
+    "mistake_repair": "Mistake repair",
+    "speaking_sessions": "Speaking",
+    "reading_exercises": "Reading",
+    "listening_exercises": "Listening",
+    "writing_tasks": "Writing",
+    "lab_sessions": "English Lab",
+}
+
 
 def get_or_create_mission(db: Session, user: User) -> DailyMission:
     today = local_today(user.profile.timezone)
@@ -565,9 +582,15 @@ def get_or_create_mission(db: Session, user: User) -> DailyMission:
             if len(tasks) >= 3:
                 break
 
-    focus_label = next((c.title for c in candidates if c.rule != "diagnostic"), "balanced practice")
-    weak = ctx.weak_areas[0] if ctx.weak_areas else None
-    focus = weak or focus_label
+    # The mission's focus names its main task (the first one after the daily vocabulary review),
+    # so the title, the summary and the task list always agree.
+    main = next((t for t in tasks if t["metric"] != "vocab_reviews"), None)
+    if main and main.get("focus"):
+        focus = label_for(main["focus"])
+    elif main:
+        focus = METRIC_FOCUS.get(main["metric"], "Balanced practice")
+    else:
+        focus = ctx.weak_areas[0] if ctx.weak_areas else "Vocabulary"
     title, summary, generated_by = f"Today's focus: {focus}"[:60], "", "rules"
     try:
         plan, result = ai_client.generate_model(

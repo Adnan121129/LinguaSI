@@ -30,7 +30,7 @@ MAX_HINTS = 12
 
 
 def list_tasks(db: Session, user: User, *, task_type: str | None, module: str | None, category: str | None, page: int, page_size: int):
-    q = select(WritingTask).where(or_(WritingTask.created_for_user_id.is_(None), WritingTask.created_for_user_id == user.id))
+    q = select(WritingTask).where(WritingTask.is_active.is_(True), or_(WritingTask.created_for_user_id.is_(None), WritingTask.created_for_user_id == user.id))
     if task_type:
         q = q.where(WritingTask.task_type == task_type)
     if module:
@@ -148,7 +148,10 @@ def evaluate(db: Session, user: User, submission_id: int, content: str | None, t
         sub.failure_reason = getattr(exc, "category", "provider_error")
         db.commit()
         logger.warning("Writing evaluation failed for submission %s: %s", submission_id, exc)
-        raise AIUnavailableError(details={"submission_id": submission_id, "status": "evaluation_failed"}) from exc
+        raise AIUnavailableError(
+            "AI analysis is temporarily unavailable. Your submission has been saved and can be analyzed again.",
+            details={"submission_id": submission_id, "status": "evaluation_failed"},
+        ) from exc
 
     sub.status = "evaluated"
     sub.evaluated_at = utcnow()

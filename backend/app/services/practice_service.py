@@ -185,6 +185,18 @@ def update_mistake_status(db: Session, user: User, mistake_id: int, status: str 
 
 # --- Practice sets ------------------------------------------------------------------------------
 
+# Mistake types that are practised inside a skill (question types, fluency) rather than with sentence drills.
+SKILL_PRACTICE_CATEGORIES = {"comprehension", "fluency"}
+
+
+def skill_practice_route(subcategory: str) -> str | None:
+    sub = SUBCATEGORIES.get(subcategory)
+    if sub is None or sub.category not in SKILL_PRACTICE_CATEGORIES or sub.practice_topic:
+        return None
+    if sub.category == "fluency":
+        return "/speaking?mode=part1"
+    return f"/{'listening' if sub.skill == 'listening' else 'reading'}?types={subcategory}"
+
 
 def practice_out(ps: PracticeSet) -> PracticeSetOut:
     results = [PracticeResultItem(**r) for r in (ps.results or [])] if ps.status == "completed" else []
@@ -217,6 +229,13 @@ def create_practice(
 ) -> PracticeSet:
     if focus not in SUBCATEGORIES and practice_generator.resolve_topic(db, focus) is None and not kb_entry(focus):
         raise ValidationAppError(f"Unknown practice focus '{focus}'.")
+    skill_route = skill_practice_route(focus)
+    if skill_route:
+        raise ValidationAppError(
+            f"{label_for(focus)} is practised with real questions rather than sentence drills.",
+            code="use_skill_practice",
+            details={"route": skill_route},
+        )
     if why is None:
         rec = next((r for r in stats.recurring_mistakes(db, user.id, days=30, limit=10) if r["subcategory"] == focus), None)
         if rec:
@@ -252,10 +271,11 @@ def revision_session(db: Session, user: User) -> PracticeSet:
         .order_by(Mistake.revisit_at.asc())
         .limit(5)
     ).all()
+    due = [m for m in due if not skill_practice_route(m.subcategory)]
     candidates = [
         r
         for r in stats.recurring_mistakes(db, user.id, days=60, limit=8, min_count=1)
-        if practice_generator.resolve_topic(db, r["subcategory"]) or kb_entry(r["subcategory"])
+        if (practice_generator.resolve_topic(db, r["subcategory"]) or kb_entry(r["subcategory"])) and not skill_practice_route(r["subcategory"])
     ]
     if due:
         focus = Counter(m.subcategory for m in due).most_common(1)[0][0]
