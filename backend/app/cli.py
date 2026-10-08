@@ -13,6 +13,7 @@ import getpass
 import os
 import sys
 
+from pydantic import EmailStr, TypeAdapter, ValidationError
 from sqlalchemy import func, select, text
 
 from app.core.config import settings
@@ -23,6 +24,8 @@ from app.core.security import hash_password
 from app.models import Profile, User, VocabularyItem
 from app.seed.demo import create_demo_learner
 from app.seed.loader import load_all
+
+_EMAIL = TypeAdapter(EmailStr)
 
 
 def cmd_seed(_: argparse.Namespace) -> int:
@@ -35,7 +38,12 @@ def cmd_seed(_: argparse.Namespace) -> int:
 
 
 def cmd_create_admin(args: argparse.Namespace) -> int:
-    email = args.email.strip().lower()
+    try:
+        # Same rules as the sign-in form, so the account can actually log in.
+        email = str(_EMAIL.validate_python(args.email.strip())).lower()
+    except ValidationError as exc:
+        print(f"Invalid email address: {exc.errors()[0]['msg']}", file=sys.stderr)
+        return 1
     password = args.password or os.environ.get("LINGUASI_ADMIN_PASSWORD")
     with SessionLocal() as db:
         user = db.scalar(select(User).where(func.lower(User.email) == email))

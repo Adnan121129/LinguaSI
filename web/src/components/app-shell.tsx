@@ -27,7 +27,7 @@ import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, PageSkeleton } from "@/components/ui";
 import { useMe } from "@/hooks/use-me";
-import { api, request } from "@/lib/api";
+import { api, leaveSession, request } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof LayoutDashboard };
@@ -136,11 +136,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Close the mobile drawer when this page is hidden by a navigation.
   useLayoutEffect(() => () => setDrawerOpen(false), []);
 
-
   async function signOut() {
     await request("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     queryClient.clear();
-    window.location.assign("/login");
+    leaveSession("/login");
   }
 
   const sidebar = (

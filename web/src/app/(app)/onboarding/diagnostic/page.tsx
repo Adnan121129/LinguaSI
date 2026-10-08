@@ -226,7 +226,13 @@ export default function DiagnosticPage() {
                     <div className="rounded-xl bg-success-soft p-3 text-sm">
                       <p className="font-medium text-success">Answer saved</p>
                       <p className="mt-1">{speaking[prompt.id].transcript}</p>
-                      <button className="mt-2 text-xs text-primary underline" onClick={() => setSpeaking(({ [prompt.id]: _removed, ...rest }) => rest)}>
+                      <button className="mt-2 text-xs text-primary underline" onClick={() =>
+                          setSpeaking((current) => {
+                            const rest = { ...current };
+                            delete rest[prompt.id];
+                            return rest;
+                          })
+                        }>
                         Answer again
                       </button>
                     </div>

@@ -4,13 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { BandValue } from "@/components/band";
 import { QuestionForm, withEvidence } from "@/components/comprehension/question-form";
 import { SIActions, useToast } from "@/components/providers/toast";
 import { ListeningPlayer } from "@/components/speech/listening-player";
 import { Button, Card, CardBody, CardHeader, ErrorState, Notice, PageSkeleton } from "@/components/ui";
+import { useTimeOnTask } from "@/hooks/use-time-on-task";
 import { api, errorMessage, mediaUrl } from "@/lib/api";
 import type { ActivityOutcome, ListeningAttempt, QuestionResult } from "@/lib/types";
 import { percent, titleCase } from "@/lib/utils";
@@ -20,7 +21,7 @@ export default function ListeningAttemptPage() {
   const attemptId = Number(id);
   const queryClient = useQueryClient();
   const { push, celebrate } = useToast();
-  const opened = useRef(Date.now());
+  const elapsedSeconds = useTimeOnTask();
   const { data, error, isLoading, refetch } = useQuery({ queryKey: ["listening-attempt", attemptId], queryFn: () => api<ListeningAttempt>(`/listening/attempts/${attemptId}`), staleTime: Infinity });
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [plays, setPlays] = useState(0);
@@ -31,7 +32,7 @@ export default function ListeningAttemptPage() {
   const submit = useMutation({
     mutationFn: () =>
       api<{ attempt: ListeningAttempt; outcome: ActivityOutcome }>("/listening/submit", {
-        json: { attempt_id: attemptId, answers, time_spent_seconds: Math.min(Math.round((Date.now() - opened.current) / 1000), 14400), replays: Math.max(0, plays - 1) },
+        json: { attempt_id: attemptId, answers, time_spent_seconds: Math.min(elapsedSeconds(), 14400), replays: Math.max(0, plays - 1) },
       }),
     onSuccess: (res) => {
       queryClient.setQueryData(["listening-attempt", attemptId], res.attempt);

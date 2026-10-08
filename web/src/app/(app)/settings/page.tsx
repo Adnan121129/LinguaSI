@@ -1,28 +1,29 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/providers/toast";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, Card, CardBody, CardHeader, Field, Input, Notice, PageHeader, PageSkeleton, Select } from "@/components/ui";
 import { useMe, useUpdateProfile } from "@/hooks/use-me";
-import { api, errorMessage, fieldErrors, request } from "@/lib/api";
+import { api, errorMessage, fieldErrors, leaveSession, request } from "@/lib/api";
 import { BANDS, LEVELS, TOPICS } from "@/lib/constants";
-import type { Profile } from "@/lib/types";
+import type { Profile, User } from "@/lib/types";
 import { cn, titleCase } from "@/lib/utils";
 
 export default function SettingsPage() {
   const { data: me, isLoading } = useMe();
+  if (isLoading || !me) return <PageSkeleton />;
+  return <SettingsForm me={me} />;
+}
+
+function SettingsForm({ me }: { me: User }) {
   const update = useUpdateProfile();
   const { push } = useToast();
-  const [form, setForm] = useState<(Partial<Profile> & { name?: string }) | null>(null);
+  const [form, setForm] = useState<Partial<Profile> & { name?: string }>(() => ({ ...me.profile, name: me.name }));
   const [passwords, setPasswords] = useState({ current: "", next: "" });
   const [deletePassword, setDeletePassword] = useState("");
-
-  useEffect(() => {
-    if (me && !form) setForm({ ...me.profile, name: me.name });
-  }, [me, form]);
 
   const changePassword = useMutation({
     mutationFn: () => api("/me/change-password", { json: { current_password: passwords.current, new_password: passwords.next } }),
@@ -36,17 +37,16 @@ export default function SettingsPage() {
     mutationFn: () => api("/me/delete", { json: { password: deletePassword } }),
     onSuccess: async () => {
       await request("/api/auth/logout", { method: "POST" }).catch(() => undefined);
-      window.location.assign("/");
+      leaveSession("/");
     },
     onError: (err) => push({ tone: "error", title: "Account not deleted", description: errorMessage(err) }),
   });
 
-  if (isLoading || !me || !form) return <PageSkeleton />;
-  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((f) => ({ ...f!, [key]: value }));
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((f) => ({ ...f, [key]: value }));
 
   function save(event: FormEvent) {
     event.preventDefault();
-    const { name, goal, ielts_module, self_reported_level, target_band, test_date, daily_minutes, preferred_mode, confidence, preferred_topics, timezone, keep_recordings } = form!;
+    const { name, goal, ielts_module, self_reported_level, target_band, test_date, daily_minutes, preferred_mode, confidence, preferred_topics, timezone, keep_recordings } = form;
     update.mutate(
       { name, goal, ielts_module, self_reported_level, target_band, daily_minutes, preferred_mode, confidence, preferred_topics, timezone, keep_recordings, ...(test_date ? { test_date } : { clear_test_date: true }) },
       {

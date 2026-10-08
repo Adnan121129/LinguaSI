@@ -3,11 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, CircleX, RotateCcw, Shuffle, Trophy } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ChoiceList } from "@/components/choice-list";
 import { SIActions, useToast } from "@/components/providers/toast";
 import { Badge, Button, Card, CardBody, ErrorState, Input, Notice, ProgressBar, Textarea, buttonClasses } from "@/components/ui";
+import { useTimeOnTask } from "@/hooks/use-time-on-task";
 import { QTYPE_LABELS } from "@/lib/constants";
 import { api } from "@/lib/api";
 import type { PracticeItem, PracticeSet, PracticeSubmitResponse } from "@/lib/types";
@@ -63,14 +64,22 @@ function ItemInput({ item, value, onChange }: { item: PracticeItem; value: strin
 }
 
 /** Runs any practice set (grammar drill, mistake repair challenge, revision session, Lab practice). */
-export function PracticeRunner({ practice, onComplete }: { practice: PracticeSet; onComplete?: (result: PracticeSubmitResponse) => void }) {
+export function PracticeRunner({
+  practice,
+  onComplete,
+  exit = { href: "/mistakes", label: "Back to My Mistakes" },
+}: {
+  practice: PracticeSet;
+  onComplete?: (result: PracticeSubmitResponse) => void;
+  exit?: { href: string; label: string };
+}) {
   const queryClient = useQueryClient();
   const { celebrate } = useToast();
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const started = useRef(Date.now());
+  const elapsedSeconds = useTimeOnTask();
   const [result, setResult] = useState<PracticeSubmitResponse | null>(null);
   const submit = useMutation({
-    mutationFn: () => api<PracticeSubmitResponse>(`/practice/sets/${practice.id}/submit`, { json: { answers, duration_seconds: Math.round((Date.now() - started.current) / 1000) } }),
+    mutationFn: () => api<PracticeSubmitResponse>(`/practice/sets/${practice.id}/submit`, { json: { answers, duration_seconds: elapsedSeconds() } }),
     onSuccess: (res) => {
       setResult(res);
       celebrate(res.outcome);
@@ -134,8 +143,8 @@ export function PracticeRunner({ practice, onComplete }: { practice: PracticeSet
           })}
         </ol>
         <div className="flex flex-wrap gap-3">
-          <Link href="/mistakes" className={buttonClasses("outline")}>
-            Back to My Mistakes
+          <Link href={exit.href} className={buttonClasses("outline")}>
+            {exit.label}
           </Link>
           <Link href="/dashboard" className={buttonClasses("primary")}>
             Dashboard

@@ -1,13 +1,16 @@
 "use client";
 
 import { Headphones, Pause, Play, RotateCcw } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { Button, Notice } from "@/components/ui";
 import { assignVoices, loadVoices, speak, stopSpeaking, ttsSupported, type SpeakerVoice } from "@/lib/speech";
 import { cn } from "@/lib/utils";
 
 export type PlayerSegment = { speaker: string; text: string | null; audio_url?: string | null };
+
+// Speech-synthesis support never changes during a page's lifetime, so there is nothing to subscribe to.
+const noSubscription = () => () => {};
 
 /**
  * Plays a listening script: server-generated audio when available, otherwise the device's own
@@ -31,12 +34,12 @@ export function ListeningPlayer({
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState<number | null>(null);
   const [plays, setPlays] = useState(0);
-  const [supported, setSupported] = useState(true);
+  const deviceVoices = useSyncExternalStore(noSubscription, ttsSupported, () => true);
+  const supported = mode === "server" || deviceVoices;
   const cancelled = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    setSupported(mode === "server" || ttsSupported());
     return () => {
       cancelled.current = true;
       stopSpeaking();

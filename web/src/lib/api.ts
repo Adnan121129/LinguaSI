@@ -26,12 +26,20 @@ type RequestOptions = {
 
 const NETWORK_MESSAGE = "You appear to be offline or the server can't be reached. Please check your connection and try again.";
 
+/**
+ * Full document navigation for session boundaries (sign-out, account deletion, expired session).
+ * A client-side router push would keep the previous learner's cached queries and the route trees
+ * that Next.js preserves for back/forward navigation in memory; a fresh document load drops all of it.
+ */
+export function leaveSession(path: string) {
+  if (typeof window === "undefined") return;
+  window.location.assign(path);
+}
+
 function redirectToLogin() {
   if (typeof window === "undefined") return;
   const here = `${window.location.pathname}${window.location.search}`;
-  if (!window.location.pathname.startsWith("/login")) {
-    window.location.assign(`/login?next=${encodeURIComponent(here)}`);
-  }
+  if (!window.location.pathname.startsWith("/login")) leaveSession(`/login?next=${encodeURIComponent(here)}`);
 }
 
 async function parseError(response: Response): Promise<ApiError> {
