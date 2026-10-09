@@ -19,7 +19,8 @@ const subscribe = () => () => {};
 export function ThemeToggle({ compact = false, persist = true }: { compact?: boolean; persist?: boolean }) {
   const { theme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
-  const { data: me } = useMe();
+  // Public pages (persist=false) have no signed-in learner to load.
+  const { data: me } = useMe({ enabled: persist });
   const update = useUpdateProfile();
   const synced = useRef(false);
 

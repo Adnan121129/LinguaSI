@@ -1,0 +1,88 @@
+# LinguaSI on one machine: PostgreSQL, the API and the web app.
+#
+#   cp .env.example .env        # then set JWT_SECRET in .env (openssl rand -hex 32)
+#   docker compose up --build
+#
+# Web app: http://localhost:3000 · API and interactive docs: http://localhost:8000/docs
+# Demo learner: docker compose exec api python -m app.cli demo
+# Every API setting (backend/.env.example) can be added to .env; it is passed to the API container.
+name: linguasi
+
+services:
+  db:
+    image: ${POSTGRES_IMAGE:-postgres:16}
+    environment:
+      POSTGRES_USER: linguasi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-linguasi}
+      POSTGRES_DB: linguasi
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linguasi -d linguasi"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim}
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://linguasi:${POSTGRES_PASSWORD:-linguasi}@db:5432/linguasi
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env to a random value, e.g. the output of openssl rand -hex 32}
+      STORAGE_LOCAL_DIR: /app/backend/storage
+      # The web server forwards each learner's address; X-Forwarded-For is trusted from it alone.
+      FORWARDED_ALLOW_IPS: 10.212.0.10
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - recordings:/app/backend/storage
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: web
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-slim}
+    environment:
+      BACKEND_URL: http://api:8000
+      # Session cookies are sent over HTTPS only unless this is false. Use true behind HTTPS.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks:
+      default:
+        ipv4_address: 10.212.0.10
+    restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        # A fixed address for the web server (trusted by the API above); other containers get
+        # addresses from ip_range, so they never take it. Change all three if 10.212.0.0/24 is in use.
+        - subnet: 10.212.0.0/24
+          ip_range: 10.212.0.128/25
+
+volumes:
+  db-data:
+  recordings:

@@ -79,3 +79,17 @@ def test_explanations_fall_back_gracefully_during_outage(onboarded, ai_outage):
     item = onboarded.get("/vocabulary/bank").json()["items"][0]
     r = onboarded.post(f"/vocabulary/items/{item['id']}/explain")
     assert r.status_code == 503 and r.json()["error"]["code"] == "ai_unavailable"
+
+
+def test_a_vocabulary_review_as_the_first_activity_of_the_day_counts_as_an_active_day(onboarded):
+    def active_days() -> int:
+        return next(c["progress"] for c in onboarded.get("/missions").json()["challenges"] if c["code"] == "active_days")
+
+    assert active_days() == 0
+    exercise = onboarded.get("/vocabulary/today").json()["exercises"][0]
+    assert onboarded.post("/vocabulary/review", json={"exercise_id": exercise["id"], "answer": "anything", "response_ms": 3000}).status_code == 200
+    assert active_days() == 1
+    # Later activities the same day don't count it twice.
+    exercise = onboarded.get("/vocabulary/today").json()["exercises"][0]
+    onboarded.post("/vocabulary/review", json={"exercise_id": exercise["id"], "answer": "anything", "response_ms": 3000})
+    assert active_days() == 1

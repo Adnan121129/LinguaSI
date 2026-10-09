@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { cn, formatBand, formatDuration, percent, relativeTime, taskTypeLabel, titleCase, wordCount } from "@/lib/utils";
+import { cn, formatBand, formatDate, formatDuration, percent, relativeTime, taskTypeLabel, titleCase, wordCount } from "@/lib/utils";
 
 describe("formatting helpers", () => {
   afterEach(() => {
@@ -18,6 +18,16 @@ describe("formatting helpers", () => {
     expect(wordCount("It's a well-known fact, isn't it?")).toBe(6);
     expect(wordCount("In 2020, 45% of people…")).toBe(5);
     expect(wordCount("   ")).toBe(0);
+  });
+
+  it("shows calendar days on the same day in every timezone", () => {
+    const original = process.env.TZ;
+    process.env.TZ = "America/Los_Angeles";
+    try {
+      expect(formatDate("2026-10-08", { day: "numeric", month: "numeric" })).toBe("10/8");
+    } finally {
+      process.env.TZ = original;
+    }
   });
 
   it("formats durations as minutes and seconds", () => {

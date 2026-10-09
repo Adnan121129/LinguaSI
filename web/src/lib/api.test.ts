@@ -85,6 +85,15 @@ describe("api client", () => {
     expect(leaveSession).not.toHaveBeenCalled();
   });
 
+  it("never bounces signed-out visitors away from the landing or registration pages", async () => {
+    mockFetch(() => jsonResponse({ error: { code: "not_authenticated", message: "Please sign in." } }, 401));
+    for (const page of ["/", "/register"]) {
+      window.history.replaceState(null, "", page);
+      await expect(api("/me")).rejects.toMatchObject({ status: 401 });
+    }
+    expect(leaveSession).not.toHaveBeenCalled();
+  });
+
   it("serves recordings and generated audio through the BFF", () => {
     expect(mediaUrl("/speaking/audio/4")).toBe("/api/backend/speaking/audio/4");
     expect(mediaUrl(null)).toBeNull();

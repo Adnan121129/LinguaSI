@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.clock import iso_week_key, local_today, utcnow
+from app.core.database import insert_or_existing
 from app.core.levels import level_for_xp, level_progress
 from app.models import Achievement, DailyMission, Streak, User, UserAchievement, UserChallenge, XPTransaction
 from app.repositories import stats
@@ -46,9 +47,9 @@ def award_xp(
 def get_streak(db: Session, user: User) -> Streak:
     streak = db.get(Streak, user.id)
     if streak is None:
-        streak = Streak(user_id=user.id, current=0, longest=0, freezes=0, freezes_used=0)
-        db.add(streak)
-        db.flush()
+        streak = insert_or_existing(
+            db, Streak(user_id=user.id, current=0, longest=0, freezes=0, freezes_used=0), select(Streak).where(Streak.user_id == user.id)
+        )
     return streak
 
 
@@ -122,7 +123,10 @@ def check_achievements(db: Session, user: User, state: RewardState) -> None:
         metric = ach.criteria.get("metric")
         target = ach.criteria.get("value", 1)
         if metric in metrics and metrics[metric] >= target:
-            db.add(UserAchievement(user_id=user.id, achievement_id=ach.id, earned_at=utcnow()))
+            unlocked = UserAchievement(user_id=user.id, achievement_id=ach.id, earned_at=utcnow())
+            earned = select(UserAchievement).where(UserAchievement.user_id == user.id, UserAchievement.achievement_id == ach.id)
+            if insert_or_existing(db, unlocked, earned) is not unlocked:
+                continue  # a concurrent request unlocked it a moment ago and awarded the XP
             gain = award_xp(db, user, ach.xp_reward, "achievement", f"Achievement: {ach.name}", ref_type="achievement", ref_id=ach.id)
             if gain:
                 state.gains.append(gain)
@@ -233,9 +237,8 @@ def ensure_week_challenges(db: Session, user: User, weakest_skill: str | None = 
         row = UserChallenge(
             user_id=user.id, week=week, code=metric, title=title, description=desc.format(n=target), metric=metric, target=target, progress=0, xp_reward=xp
         )
-        db.add(row)
-        rows.append(row)
-    db.flush()
+        existing = select(UserChallenge).where(UserChallenge.user_id == user.id, UserChallenge.week == week, UserChallenge.code == metric)
+        rows.append(insert_or_existing(db, row, existing))
     return rows
 
 

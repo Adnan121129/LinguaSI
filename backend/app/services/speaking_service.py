@@ -142,12 +142,14 @@ def respond(
     db.add(transcript)
     db.flush()
     if audio_bytes and user.profile.keep_recordings:
-        ext = AUDIO_EXTENSIONS.get((audio_mime or "").split(";")[0], "webm")
+        mime = (audio_mime or "").split(";")[0].strip().lower()
+        mime = mime if mime.startswith("audio/") else "audio/webm"  # stored and served only as audio
+        ext = AUDIO_EXTENSIONS.get(mime, "webm")
         key = f"users/{user.id}/speaking/{session.id}/{transcript.id}.{ext}"
         try:
-            storage.save(key, audio_bytes, audio_mime or "audio/webm")
+            storage.save(key, audio_bytes, mime)
             transcript.audio_key = key
-            transcript.audio_mime = (audio_mime or "audio/webm").split(";")[0]
+            transcript.audio_mime = mime
         except Exception:  # storage problems must not lose the learner's answer
             logger.exception("Could not store recording for transcript %s", transcript.id)
     session.total_speaking_seconds = (session.total_speaking_seconds or 0) + metrics.duration_seconds

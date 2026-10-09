@@ -61,3 +61,16 @@ def test_ai_rate_limit_returns_friendly_429(onboarded, monkeypatch):
 def test_login_attempts_are_rate_limited(client, learner):
     codes = [client.post("/auth/login", json={"email": learner.email, "password": "wrong-pass-0"}).status_code for _ in range(11)]
     assert codes[:10] == [401] * 10 and codes[10] == 429
+
+
+def test_learners_behind_the_web_server_get_their_own_registration_allowance(client, monkeypatch):
+    secret = "a-long-random-shared-secret-0123456789"
+    monkeypatch.setattr(settings, "proxy_shared_secret", secret)
+
+    def register(n: int, ip: str) -> int:
+        headers = {"X-LinguaSI-Proxy-Secret": secret, "X-LinguaSI-Client-IP": ip}
+        payload = {"email": f"vouched{n}@example.com", "password": "Passw0rd-123", "name": "Learner"}
+        return client.post("/auth/register", json=payload, headers=headers).status_code
+
+    assert [register(i, "203.0.113.7") for i in range(11)] == [201] * 10 + [429]
+    assert register(11, "198.51.100.4") == 201

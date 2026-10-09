@@ -15,9 +15,20 @@ from app.core.database import get_db
 from app.core.errors import AuthError, ForbiddenError
 from app.core.rate_limit import enforce
 from app.core.security import decode_access_token
-from app.models import User
+from app.models import AuthSession, User
 
 _bearer = HTTPBearer(auto_error=False, description="Access token from /auth/login or /auth/register")
+
+
+def current_session_id(credentials: HTTPAuthorizationCredentials | None = Depends(_bearer)) -> int | None:
+    """The refresh session behind the caller's access token (tokens issued before sessions were named have none)."""
+    if credentials is None:
+        return None
+    try:
+        sid = decode_access_token(credentials.credentials).get("sid")
+    except jwt.PyJWTError:
+        return None
+    return sid if isinstance(sid, int) else None
 
 
 def get_current_user(
@@ -39,6 +50,13 @@ def get_current_user(
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise AuthError("Your account is not available.", code="account_unavailable")
+    sid = payload.get("sid")
+    if isinstance(sid, int):
+        session = db.get(AuthSession, sid)
+        # An access token ends with its session: signed out, password changed on another device, or ended
+        # after token theft. A rotated session has not ended; the token's holder simply refreshed.
+        if session is None or (session.revoked_at is not None and session.replaced_by_id is None):
+            raise AuthError("Your session has ended. Please sign in again.", code="session_revoked")
     now = utcnow()
     last = ensure_aware(user.last_active_at)
     if last is None or now - last > timedelta(minutes=5):

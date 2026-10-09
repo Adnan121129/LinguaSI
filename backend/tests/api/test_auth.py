@@ -1,4 +1,9 @@
-from app.models import User
+from datetime import timedelta
+
+from sqlalchemy import select
+
+from app.core.security import hash_token
+from app.models import AuthSession, User
 
 
 def test_register_returns_tokens_and_profile(client):
@@ -51,13 +56,21 @@ def test_protected_routes_require_a_valid_token(client):
     assert r.status_code == 401 and r.json()["error"]["code"] == "invalid_token"
 
 
-def test_refresh_rotates_tokens_and_detects_reuse(client, learner):
+def _rotated_a_while_ago(db, refresh_token: str) -> None:
+    """Move a rotation back in time, past the grace period for parallel requests."""
+    session = db.scalar(select(AuthSession).where(AuthSession.token_hash == hash_token(refresh_token)))
+    session.revoked_at = session.revoked_at - timedelta(minutes=5)
+    db.commit()
+
+
+def test_refresh_rotates_tokens_and_detects_reuse(client, learner, db):
     first = learner.tokens["refresh_token"]
     r = client.post("/auth/refresh", json={"refresh_token": first})
     assert r.status_code == 200
     second = r.json()["refresh_token"]
     assert second != first
-    # Presenting the rotated token again is treated as theft: every session is revoked.
+    # Presenting the rotated token again later is treated as theft: every session is revoked.
+    _rotated_a_while_ago(db, first)
     reuse = client.post("/auth/refresh", json={"refresh_token": first})
     assert reuse.status_code == 401 and reuse.json()["error"]["code"] == "refresh_token_reused"
     assert client.post("/auth/refresh", json={"refresh_token": second}).status_code == 401
@@ -78,3 +91,47 @@ def test_error_responses_include_request_id(client):
     r = client.get("/me")
     assert r.json()["error"]["request_id"]
     assert r.headers["X-Request-ID"] == r.json()["error"]["request_id"]
+
+
+def test_signed_out_token_is_refused_without_ending_other_sessions(client, learner):
+    phone = client.post("/auth/login", json={"email": learner.email, "password": learner.password}).json()
+    assert client.post("/auth/logout", json={"refresh_token": phone["refresh_token"]}).status_code == 200
+    stale = client.post("/auth/refresh", json={"refresh_token": phone["refresh_token"]})
+    assert stale.status_code == 401 and stale.json()["error"]["code"] == "session_revoked"
+    # Not treated as token theft: the learner's other session still works.
+    assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
+
+
+def test_access_tokens_name_their_session(learner):
+    from app.core.security import decode_access_token
+
+    assert isinstance(decode_access_token(learner.tokens["access_token"])["sid"], int)
+
+
+def test_parallel_refreshes_with_one_token_are_not_treated_as_theft(client, learner):
+    # A page that fires several requests just after the access token expired sends the same refresh
+    # token with each of them; every request must get working tokens.
+    first = learner.tokens["refresh_token"]
+    responses = [client.post("/auth/refresh", json={"refresh_token": first}) for _ in range(3)]
+    assert [r.status_code for r in responses] == [200, 200, 200]
+    for r in responses:
+        assert client.post("/auth/refresh", json={"refresh_token": r.json()["refresh_token"]}).status_code == 200
+
+
+def test_the_grace_period_never_revives_a_signed_out_session(client, learner):
+    first = learner.tokens["refresh_token"]
+    second = client.post("/auth/refresh", json={"refresh_token": first}).json()["refresh_token"]
+    assert client.post("/auth/logout", json={"refresh_token": second}).status_code == 200
+    late = client.post("/auth/refresh", json={"refresh_token": first})
+    assert late.status_code == 401 and late.json()["error"]["code"] == "session_revoked"
+
+
+def test_signing_out_ends_the_access_token_too(client, learner):
+    assert client.post("/auth/logout", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
+    r = learner.get("/me")
+    assert r.status_code == 401 and r.json()["error"]["code"] == "session_revoked"
+
+
+def test_access_tokens_keep_working_after_their_session_is_refreshed(client, learner):
+    assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
+    assert learner.get("/me").status_code == 200

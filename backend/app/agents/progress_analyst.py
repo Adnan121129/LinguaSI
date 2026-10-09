@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.analytics.difficulty import SkillUpdate, apply_result
 from app.core.clock import local_today, utcnow
+from app.core.database import insert_or_existing
 from app.core.levels import band_to_cefr, band_to_score, round_band, score_to_cefr
 from app.models import (
     IELTS_SKILLS,
@@ -59,20 +60,23 @@ class SkillResult:
 
 
 def get_skill_profile(db: Session, user: User, skill: str) -> LearnerSkillProfile:
-    profile = db.scalar(select(LearnerSkillProfile).where(LearnerSkillProfile.user_id == user.id, LearnerSkillProfile.skill == skill))
+    query = select(LearnerSkillProfile).where(LearnerSkillProfile.user_id == user.id, LearnerSkillProfile.skill == skill)
+    profile = db.scalar(query)
     if profile is None:
-        profile = LearnerSkillProfile(
-            user_id=user.id,
-            skill=skill,
-            score=0.0,
-            confidence=0.0,
-            trend="new",
-            difficulty=LEVEL_START_DIFFICULTY.get(user.profile.self_reported_level, 2),
-            attempts=0,
-            recent=[],
+        profile = insert_or_existing(
+            db,
+            LearnerSkillProfile(
+                user_id=user.id,
+                skill=skill,
+                score=0.0,
+                confidence=0.0,
+                trend="new",
+                difficulty=LEVEL_START_DIFFICULTY.get(user.profile.self_reported_level, 2),
+                attempts=0,
+                recent=[],
+            ),
+            query,
         )
-        db.add(profile)
-        db.flush()
     return profile
 
 
@@ -202,10 +206,10 @@ def refresh_insights(db: Session, user: User) -> None:
 
 def snapshot(db: Session, user: User) -> ProgressSnapshot:
     today = local_today(user.profile.timezone)
-    snap = db.scalar(select(ProgressSnapshot).where(ProgressSnapshot.user_id == user.id, ProgressSnapshot.day == today))
+    query = select(ProgressSnapshot).where(ProgressSnapshot.user_id == user.id, ProgressSnapshot.day == today)
+    snap = db.scalar(query)
     if snap is None:
-        snap = ProgressSnapshot(user_id=user.id, day=today)
-        db.add(snap)
+        snap = insert_or_existing(db, ProgressSnapshot(user_id=user.id, day=today), query)
     skills = all_skill_profiles(db, user)
     snap.skills = {s: {"score": sp.score, "band": sp.band} for s, sp in skills.items() if sp.attempts}
     snap.overall_band = user.profile.estimated_band

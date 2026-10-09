@@ -39,6 +39,14 @@ export function forwardedHeaders(request: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {};
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) headers["x-forwarded-for"] = forwardedFor;
+  // With the shared secret, the API accepts the learner address we report even though this server's
+  // own address changes (as on Vercel). The right-most entry is the one our own proxy added.
+  const secret = process.env.PROXY_SHARED_SECRET;
+  const learnerAddress = forwardedFor?.split(",").at(-1)?.trim();
+  if (secret && learnerAddress) {
+    headers["x-linguasi-proxy-secret"] = secret;
+    headers["x-linguasi-client-ip"] = learnerAddress;
+  }
   const userAgent = request.headers.get("user-agent");
   if (userAgent) headers["user-agent"] = userAgent;
   const requestId = request.headers.get("x-request-id");
@@ -46,7 +54,24 @@ export function forwardedHeaders(request: NextRequest): Record<string, string> {
   return headers;
 }
 
-export async function refreshSession(refreshToken: string, request: NextRequest): Promise<TokenPayload | null> {
+// Requests that arrive together just after the access token expired all carry the same refresh token.
+// They share one refresh, so every response hands the browser the same new tokens.
+const SHARE_REFRESH_MS = 10_000;
+const sharedRefreshes = new Map<string, Promise<TokenPayload | null>>();
+
+export function refreshSession(refreshToken: string, request: NextRequest): Promise<TokenPayload | null> {
+  const shared = sharedRefreshes.get(refreshToken);
+  if (shared) return shared;
+  const refresh = requestRefresh(refreshToken, request);
+  sharedRefreshes.set(refreshToken, refresh);
+  void refresh.then((tokens) => {
+    if (tokens) setTimeout(() => sharedRefreshes.delete(refreshToken), SHARE_REFRESH_MS);
+    else sharedRefreshes.delete(refreshToken);
+  });
+  return refresh;
+}
+
+async function requestRefresh(refreshToken: string, request: NextRequest): Promise<TokenPayload | null> {
   try {
     const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
       method: "POST",

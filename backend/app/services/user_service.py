@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import AuthError
 from app.core.security import verify_password
-from app.models import LearningGoal, User
+from app.models import AIInteractionLog, LearningGoal, ListeningScript, ReadingPassage, User, WritingTask
 from app.schemas.auth import ProfileUpdate
 from app.services.storage import storage
 
@@ -78,6 +78,15 @@ def sync_band_goal(db: Session, user: User) -> None:
 def delete_account(db: Session, user: User, password: str) -> None:
     if not verify_password(password, user.password_hash):
         raise AuthError("Password is incorrect.", code="invalid_credentials")
+    # Content generated for this learner can echo what they typed (a topic, their interests), so it is
+    # deleted with them rather than joining the shared content bank. AI usage logs keep their metadata
+    # but lose any stored prompt previews.
+    script_ids = list(db.scalars(select(ListeningScript.id).where(ListeningScript.created_for_user_id == user.id)))
+    for model in (WritingTask, ReadingPassage, ListeningScript):
+        db.execute(delete(model).where(model.created_for_user_id == user.id))
+    db.execute(update(AIInteractionLog).where(AIInteractionLog.user_id == user.id).values(debug_payload=None))
     storage.delete_prefix(f"users/{user.id}/")
+    for script_id in script_ids:
+        storage.delete_prefix(f"listening/{script_id}/")
     db.delete(user)
     db.commit()

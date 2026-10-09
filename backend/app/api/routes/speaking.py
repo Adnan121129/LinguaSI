@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from app.api.deps import Pagination, ai_rate_limit, get_current_user
+from app.core.config import settings
 from app.core.database import get_db
 from app.models import User
 from app.schemas.common import Message, Page
@@ -46,7 +47,8 @@ async def respond(
     user: User = Depends(ai_rate_limit),
     db: Session = Depends(get_db),
 ) -> RespondResponse:
-    audio_bytes = await audio.read() if audio is not None else None
+    # Read at most one byte past the size limit: an oversized upload is rejected without holding it all in memory.
+    audio_bytes = await audio.read(settings.max_audio_upload_mb * 1024 * 1024 + 1) if audio is not None else None
     # The service does blocking database and AI work, so it runs in the threadpool, not on the event loop.
     t, nxt = await run_in_threadpool(
         speaking_service.respond,
@@ -89,4 +91,6 @@ def history(pagination: Pagination = Depends(), user: User = Depends(get_current
 @router.get("/audio/{transcript_id}", summary="Replay a stored recording")
 def audio(transcript_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Response:
     data, mime = speaking_service.audio(db, user, transcript_id)
-    return Response(content=data, media_type=mime, headers={"Cache-Control": "private, max-age=3600"})
+    # Only ever served as audio, whatever type the upload claimed.
+    media_type = mime if mime.startswith("audio/") else "application/octet-stream"
+    return Response(content=data, media_type=media_type, headers={"Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff"})
