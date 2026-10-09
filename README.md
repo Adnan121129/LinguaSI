@@ -288,7 +288,7 @@ Errors always have the shape `{"error": {"code", "message", "details?", "request
 
 | Suite | Command | What it covers |
 | --- | --- | --- |
-| API | `cd backend && pytest` | 155 tests: unit (grammar rules, essay and speech metrics, scoring, SRS, difficulty, security, settings, AI client), API (every module, authorization, sessions, validation, AI outages, rate limits), integration (full learner journey, streaks across days, cross-skill effects, concurrent first-use rows, demo generator, migration drift). Needs PostgreSQL: the suite creates `linguasi_test` on localhost (or uses `TEST_DATABASE_URL`) and wipes it on every run, so never point it at real data. |
+| API | `cd backend && pytest` | 157 tests: unit (grammar rules, essay and speech metrics, scoring, SRS, difficulty, security, settings, AI client), API (every module, authorization, sessions, validation, AI outages, rate limits), integration (full learner journey, streaks across days, cross-skill effects, concurrent first-use rows, demo generator, migration drift). Needs PostgreSQL: the suite creates `linguasi_test` on localhost (or uses `TEST_DATABASE_URL`) and wipes it on every run, so never point it at real data. |
 | API lint | `cd backend && ruff check app tests && ruff format --check app tests` | Style and common bugs |
 | Web | `cd web && npm run lint && npm run typecheck && npm test` | 44 Vitest tests: API client and session handling, server-side session refresh and forwarded headers, formatting, essay highlighting, practice runner, toasts, question forms, charts |
 | Mobile | `cd mobile && npm run typecheck && npm run lint && npm test` | 20 Jest tests: API client and token refresh, validation, routes, pause detection, practice runner, recorder |
