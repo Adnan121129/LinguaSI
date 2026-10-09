@@ -41,12 +41,12 @@ def today(db: Session, user: User, focus: str | None = None) -> dict:
 def review(db: Session, user: User, exercise_id: str, answer: str, response_ms: int | None, hinted: bool) -> dict:
     result = vocabulary_engine.check_review(db, user, exercise_id, answer, response_ms, hinted=hinted)
     state = gamification.RewardState()
-    gamification.touch_streak(db, user, state)
+    _, first_activity_today = gamification.touch_streak(db, user, state)
     amount = 2 if result["correct"] else 1
     gain = gamification.award_xp(db, user, amount, "vocab_review", f"Vocabulary review: {result['item'].word}")
     gamification.record_mission_progress(db, user, {"vocab_reviews": 1}, state)
     gamification.ensure_week_challenges(db, user)
-    gamification.record_challenge_progress(db, user, {"vocab_reviews": 1}, state, new_active_day=False)
+    gamification.record_challenge_progress(db, user, {"vocab_reviews": 1}, state, new_active_day=first_activity_today)
     db.commit()
     return result | {
         "xp_gained": (gain.amount if gain else 0) + sum(g.amount for g in state.gains),
