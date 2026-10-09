@@ -39,3 +39,17 @@ def test_delete_account_removes_all_learning_data(client, onboarded, db):
     assert onboarded.post("/me/delete", json={"password": onboarded.password}).status_code == 200
     assert db.get(User, onboarded.id) is None
     assert client.post("/auth/login", json={"email": onboarded.email, "password": onboarded.password}).status_code == 401
+
+
+def test_deleting_an_account_also_deletes_content_generated_for_it(onboarded, make_learner, db):
+    from app.models import WritingTask
+
+    generated = onboarded.post("/writing/generate", json={"module": "academic", "task_type": "task2", "topic": "my family's bakery in Sylhet"})
+    assert generated.status_code == 200, generated.text
+    task_id = generated.json()["task"]["id"]
+    other = make_learner(onboard=True)
+    assert other.get(f"/writing/tasks/{task_id}").status_code == 404
+    assert onboarded.post("/me/delete", json={"password": onboarded.password}).status_code == 200
+    # Not orphaned into the shared bank: gone.
+    assert db.get(WritingTask, task_id) is None
+    assert other.get(f"/writing/tasks/{task_id}").status_code == 404
