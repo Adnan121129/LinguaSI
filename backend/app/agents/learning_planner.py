@@ -22,6 +22,7 @@ from app.ai.client import ai_client
 from app.ai.providers.base import AIError
 from app.ai.schemas import DailyPlanAI
 from app.core.clock import ensure_aware, local_today, utcnow
+from app.core.database import insert_or_existing
 from app.core.taxonomy import label_for, practice_topic_for
 from app.models import (
     DailyMission,
@@ -615,9 +616,10 @@ def get_or_create_mission(db: Session, user: User) -> DailyMission:
         logger.info("Planner AI unavailable; using rule-based mission summary")
         summary = f"Today's mission focuses on {focus}. It takes about {minutes_used} minutes."
 
+    day = local_today(user.profile.timezone)
     mission = DailyMission(
         user_id=user.id,
-        day=local_today(user.profile.timezone),
+        day=day,
         title=title,
         summary=summary,
         focus=str(focus)[:60],
@@ -626,6 +628,4 @@ def get_or_create_mission(db: Session, user: User) -> DailyMission:
         bonus_xp=50,
         generated_by=generated_by,
     )
-    db.add(mission)
-    db.flush()
-    return mission
+    return insert_or_existing(db, mission, select(DailyMission).where(DailyMission.user_id == user.id, DailyMission.day == day))

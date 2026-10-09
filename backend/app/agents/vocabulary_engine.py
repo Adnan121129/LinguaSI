@@ -27,6 +27,7 @@ from app.analytics.grammar_rules import detect_errors
 from app.analytics.scoring import normalize_completion
 from app.analytics.text import stem, words
 from app.core.clock import local_today, utcnow
+from app.core.database import insert_or_existing
 from app.core.errors import NotFoundError, ValidationAppError
 from app.core.levels import CEFR_LEVELS
 from app.models import User, UserVocabulary, VocabularyItem, VocabularyReview
@@ -113,21 +114,20 @@ def add_words(
     for item in items:
         if item.id in owned:
             continue
-        db.add(
-            UserVocabulary(
-                user_id=user.id,
-                item_id=item.id,
-                state="new",
-                due_at=now,
-                priority=priority,
-                reason=reason,
-                reason_detail=(detail or "")[:300] or None,
-                added_at=now,
-            )
+        word = UserVocabulary(
+            user_id=user.id,
+            item_id=item.id,
+            state="new",
+            due_at=now,
+            priority=priority,
+            reason=reason,
+            reason_detail=(detail or "")[:300] or None,
+            added_at=now,
         )
         owned.add(item.id)
-        added.append(item)
-    db.flush()
+        existing = select(UserVocabulary).where(UserVocabulary.user_id == user.id, UserVocabulary.item_id == item.id)
+        if insert_or_existing(db, word, existing) is word:
+            added.append(item)
     return added
 
 

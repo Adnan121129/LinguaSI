@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import TypeVar
 
-from sqlalchemy import create_engine
+from sqlalchemy import Select, create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
@@ -31,3 +33,26 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+T = TypeVar("T")
+
+
+def insert_or_existing(db: Session, row: T, existing: Select[tuple[T]]) -> T:
+    """Insert `row`, or return the row a concurrent request inserted first with the same unique key.
+
+    Rows created on first use (today's mission, a skill profile, a week's challenges...) can be created
+    by two requests for the same learner at once, e.g. the web and mobile apps opening the dashboard
+    together. The insert runs in a savepoint, so losing that race leaves the request's transaction
+    usable. Callers can tell which happened with `result is row`.
+    """
+    db.flush()  # anything already pending is not part of this race
+    try:
+        with db.begin_nested():
+            db.add(row)
+        return row
+    except IntegrityError:
+        found = db.scalar(existing)
+        if found is None:
+            raise
+        return found
