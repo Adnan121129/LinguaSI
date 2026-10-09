@@ -81,7 +81,7 @@ export default function AchievementsPage() {
           </p>
         </Card>
         <Card className="p-5">
-          <Stat label="Current streak" value={`${a.streak.current} days`} hint={`Longest ${a.streak.longest} · ${a.streak.freezes} freeze(s) — one is earned every 7 days`} icon={<Flame className="size-4 text-danger" />} />
+          <Stat label="Current streak" value={`${a.streak.current} day${a.streak.current === 1 ? "" : "s"}`} hint={`Longest ${a.streak.longest} · ${a.streak.freezes} freeze(s) — one is earned every 7 days`} icon={<Flame className="size-4 text-danger" />} />
         </Card>
         <Card className="p-5">
           <Stat label="Badges" value={`${earned} / ${a.achievements.length}`} icon={<Award className="size-4" />} />

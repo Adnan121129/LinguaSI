@@ -97,7 +97,7 @@ export default function AchievementsScreen() {
             <Flame size={15} color={colors.danger} />
             <Text variant="label" tone="muted">Streak</Text>
           </Row>
-          <Text variant="heading">{a.streak.current} days</Text>
+          <Text variant="heading">{a.streak.current} day{a.streak.current === 1 ? "" : "s"}</Text>
           <Text variant="caption" tone="muted">
             Longest {a.streak.longest} · {a.streak.freezes} freeze{a.streak.freezes === 1 ? "" : "s"} (one earned every 7 days)
           </Text>

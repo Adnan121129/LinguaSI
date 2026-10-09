@@ -78,7 +78,7 @@ export default function HomeScreen() {
             <Text variant="label" tone="muted">Streak</Text>
           </Row>
           <Text style={{ fontSize: 30, fontWeight: "700" }}>
-            {data.streak.current} <Text tone="muted">days</Text>
+            {data.streak.current} <Text tone="muted">day{data.streak.current === 1 ? "" : "s"}</Text>
           </Text>
           <Text variant="caption" tone="muted">
             {data.streak.active_today ? "Done for today — nice." : data.streak.at_risk ? "Practise today to keep it." : "Start a streak today."} Best {data.streak.longest}.

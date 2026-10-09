@@ -36,7 +36,7 @@ export default function MeTab() {
         <Card>
           <StatGrid>
             {d.goal === "ielts" ? <BandValue band={d.estimated_band} target={d.target_band} size="sm" /> : <Stat label="AI Estimated Level" value={d.cefr ?? "—"} />}
-            <Stat label="Streak" value={`${d.streak.current} days`} />
+            <Stat label="Streak" value={`${d.streak.current} day${d.streak.current === 1 ? "" : "s"}`} />
           </StatGrid>
           <Stat label={`Level ${d.level.level}`} value={d.level.title} />
           <ProgressBar value={d.level.progress * 100} label="Progress to next level" />

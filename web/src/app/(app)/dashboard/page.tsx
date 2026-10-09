@@ -69,7 +69,7 @@ export default function DashboardPage() {
           <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             <Flame className={cn("size-3.5", data.streak.current ? "text-danger" : "")} aria-hidden /> Streak
           </p>
-          <p className="mt-1 text-4xl font-semibold">{data.streak.current} <span className="text-base font-normal text-muted-foreground">days</span></p>
+          <p className="mt-1 text-4xl font-semibold">{data.streak.current} <span className="text-base font-normal text-muted-foreground">day{data.streak.current === 1 ? "" : "s"}</span></p>
           <p className="mt-2 text-sm text-muted-foreground">
             {data.streak.active_today ? "Done for today — nice." : data.streak.at_risk ? "Practise today to keep your streak." : "Start a streak today."}
           </p>
