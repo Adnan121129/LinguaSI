@@ -1,5 +1,6 @@
 import json
 
+from app.core.config import settings
 from tests.samples import SPEAKING_ANSWER
 
 PAUSES = json.dumps({"measured": True, "count": 3, "long_count": 1, "total_silence_seconds": 2.5})
@@ -81,6 +82,14 @@ def test_recordings_are_stored_and_replayable_by_owner_only(onboarded, make_lear
     assert audio.status_code == 200 and audio.content.startswith(b"\x1aE\xdf\xa3")
     other = make_learner(onboard=True)
     assert other.get(f"/speaking/audio/{transcript['id']}").status_code == 404
+
+
+def test_oversized_recordings_are_rejected(onboarded, monkeypatch):
+    monkeypatch.setattr(settings, "max_audio_upload_mb", 1)
+    start = onboarded.post("/speaking/session/start", json={"mode": "part1"}).json()
+    files = {"audio": ("answer.webm", b"\0" * (1024 * 1024 + 10), "audio/webm")}
+    r = onboarded.post("/speaking/session/respond", data={"session_id": str(start["session"]["id"]), "transcript": SPEAKING_ANSWER}, files=files)
+    assert r.status_code == 422 and "smaller than 1 MB" in r.json()["error"]["message"]
 
 
 def test_evaluation_outage_keeps_answers(onboarded, ai_outage):
