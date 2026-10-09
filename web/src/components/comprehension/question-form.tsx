@@ -92,10 +92,12 @@ export function QuestionForm({
 
 /** Highlights an evidence quote inside a block of text. */
 export function withEvidence(text: string, evidence: string | null): React.ReactNode {
-  if (!evidence) return text;
-  const index = text.toLowerCase().indexOf(evidence.toLowerCase().replace(/[.…]+$/, "").slice(0, 120));
+  // Quotes may end with "..." when the evidence was trimmed; match and highlight the quoted words only.
+  const quote = evidence?.trim().replace(/[.…]+$/, "") ?? "";
+  if (!quote) return text;
+  const index = text.toLowerCase().indexOf(quote.toLowerCase().slice(0, 120));
   if (index < 0) return text;
-  const length = Math.min(evidence.length, text.length - index);
+  const length = Math.min(quote.length, text.length - index);
   return (
     <>
       {text.slice(0, index)}

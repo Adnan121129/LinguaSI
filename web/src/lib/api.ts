@@ -1,6 +1,8 @@
 // Browser-side API client. Every call goes through the Next.js BFF (/api/backend/*), which attaches the
 // session from httpOnly cookies; the browser never handles tokens or provider keys.
 
+import { leaveSession } from "@/lib/navigation";
+
 export class ApiError extends Error {
   status: number;
   code: string;
@@ -25,16 +27,6 @@ type RequestOptions = {
 };
 
 const NETWORK_MESSAGE = "You appear to be offline or the server can't be reached. Please check your connection and try again.";
-
-/**
- * Full document navigation for session boundaries (sign-out, account deletion, expired session).
- * A client-side router push would keep the previous learner's cached queries and the route trees
- * that Next.js preserves for back/forward navigation in memory; a fresh document load drops all of it.
- */
-export function leaveSession(path: string) {
-  if (typeof window === "undefined") return;
-  window.location.assign(path);
-}
 
 function redirectToLogin() {
   if (typeof window === "undefined") return;
