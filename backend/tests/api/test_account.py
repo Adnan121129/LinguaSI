@@ -19,8 +19,12 @@ def test_change_password_signs_out_other_devices_but_not_this_one(client, learne
     other_device = client.post("/auth/login", json={"email": learner.email, "password": learner.password}).json()
     r = learner.post("/me/change-password", json={"current_password": learner.password, "new_password": "brand-new-pass-7"})
     assert r.status_code == 200
+    # The other device is signed out at once: its access token stops working, not just its refresh token.
+    stale = client.get("/me", headers={"Authorization": f"Bearer {other_device['access_token']}"})
+    assert stale.status_code == 401 and stale.json()["error"]["code"] == "session_revoked"
     assert client.post("/auth/refresh", json={"refresh_token": other_device["refresh_token"]}).status_code == 401
     # The device that changed the password keeps its session.
+    assert learner.get("/me").status_code == 200
     assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
     assert client.post("/auth/login", json={"email": learner.email, "password": "brand-new-pass-7"}).status_code == 200
     wrong = learner.post("/me/change-password", json={"current_password": "nope", "new_password": "brand-new-pass-8"})

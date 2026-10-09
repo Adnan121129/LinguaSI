@@ -24,6 +24,9 @@ from app.models import AuthSession, Profile, Streak, User
 
 logger = logging.getLogger("linguasi.auth")
 
+# How long after a rotation the previous refresh token is still accepted from parallel requests.
+ROTATION_GRACE = timedelta(seconds=30)
+
 # Verifying against a dummy hash when the email is unknown keeps response timing uniform,
 # which prevents account enumeration through login latency.
 _DUMMY_HASH = hash_password("timing-equaliser-password-1")
@@ -101,20 +104,28 @@ def refresh(db: Session, *, refresh_token: str, user_agent: str | None) -> tuple
         if session.replaced_by_id is None:
             # Ended deliberately (sign-out, password change, deactivation): just refuse it.
             raise AuthError("Your session has ended. Please sign in again.", code="session_revoked")
-        # A rotated token was presented again: treat as theft and end every session for this user.
-        db.execute(update(AuthSession).where(AuthSession.user_id == session.user_id, AuthSession.revoked_at.is_(None)).values(revoked_at=now))
-        db.commit()
-        logger.warning("Refresh token reuse detected for user id=%s; all sessions revoked", session.user_id)
-        raise AuthError("Your session is no longer valid. Please sign in again.", code="refresh_token_reused")
+        if now - ensure_aware(session.revoked_at) > ROTATION_GRACE:
+            # A rotated token was presented again later: treat as theft and end every session for this user.
+            db.execute(update(AuthSession).where(AuthSession.user_id == session.user_id, AuthSession.revoked_at.is_(None)).values(revoked_at=now))
+            db.commit()
+            logger.warning("Refresh token reuse detected for user id=%s; all sessions revoked", session.user_id)
+            raise AuthError("Your session is no longer valid. Please sign in again.", code="refresh_token_reused")
+        # Rotated moments ago: a client that fires several requests just after its access token expired
+        # sends the same refresh token with each, and only the first can rotate it. That is not theft, so
+        # the others get tokens too, unless the session was ended deliberately in the meantime.
+        successor = db.get(AuthSession, session.replaced_by_id)
+        if successor is None or (successor.revoked_at is not None and successor.replaced_by_id is None):
+            raise AuthError("Your session has ended. Please sign in again.", code="session_revoked")
     if ensure_aware(session.expires_at) <= now:
         raise AuthError("Your session has expired. Please sign in again.", code="refresh_token_expired")
     user = db.get(User, session.user_id)
     if user is None or not user.is_active:
         raise AuthError()
     tokens = _issue_tokens(db, user, user_agent)
-    session.revoked_at = now
     session.last_used_at = now
-    session.replaced_by_id = tokens.session_id
+    if session.revoked_at is None:
+        session.revoked_at = now
+        session.replaced_by_id = tokens.session_id
     db.commit()
     return user, tokens
 
