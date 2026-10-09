@@ -20,6 +20,17 @@ from app.models import User
 _bearer = HTTPBearer(auto_error=False, description="Access token from /auth/login or /auth/register")
 
 
+def current_session_id(credentials: HTTPAuthorizationCredentials | None = Depends(_bearer)) -> int | None:
+    """The refresh session behind the caller's access token (tokens issued before sessions were named have none)."""
+    if credentials is None:
+        return None
+    try:
+        sid = decode_access_token(credentials.credentials).get("sid")
+    except jwt.PyJWTError:
+        return None
+    return sid if isinstance(sid, int) else None
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     db: Session = Depends(get_db),

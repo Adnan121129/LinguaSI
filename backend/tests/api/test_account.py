@@ -15,10 +15,13 @@ def test_invalid_profile_values_are_rejected(onboarded):
     assert onboarded.patch("/me", json={"timezone": "Mars/Base"}).status_code == 422
 
 
-def test_change_password_revokes_sessions(client, learner):
+def test_change_password_signs_out_other_devices_but_not_this_one(client, learner):
+    other_device = client.post("/auth/login", json={"email": learner.email, "password": learner.password}).json()
     r = learner.post("/me/change-password", json={"current_password": learner.password, "new_password": "brand-new-pass-7"})
     assert r.status_code == 200
-    assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 401
+    assert client.post("/auth/refresh", json={"refresh_token": other_device["refresh_token"]}).status_code == 401
+    # The device that changed the password keeps its session.
+    assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
     assert client.post("/auth/login", json={"email": learner.email, "password": "brand-new-pass-7"}).status_code == 200
     wrong = learner.post("/me/change-password", json={"current_password": "nope", "new_password": "brand-new-pass-8"})
     assert wrong.status_code == 401

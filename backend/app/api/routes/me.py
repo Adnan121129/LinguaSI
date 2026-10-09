@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import current_session_id, get_current_user
 from app.core.database import get_db
 from app.models import User
 from app.schemas.auth import ChangePasswordRequest, DeleteAccountRequest, ProfileUpdate, UserOut
@@ -24,8 +24,13 @@ def update_me(payload: ProfileUpdate, user: User = Depends(get_current_user), db
 
 
 @router.post("/me/change-password", response_model=Message)
-def change_password(payload: ChangePasswordRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Message:
-    auth_service.change_password(db, user, current_password=payload.current_password, new_password=payload.new_password)
+def change_password(
+    payload: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    session_id: int | None = Depends(current_session_id),
+    db: Session = Depends(get_db),
+) -> Message:
+    auth_service.change_password(db, user, current_password=payload.current_password, new_password=payload.new_password, keep_session_id=session_id)
     return Message(message="Password changed. Other devices have been signed out.")
 
 

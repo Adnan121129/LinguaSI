@@ -10,9 +10,14 @@ export function formatBand(band: number | null | undefined): string {
   return Number.isInteger(band) ? `${band}.0` : `${band}`;
 }
 
+/** Parses API dates. A date-only value ("2026-10-08") is a calendar day, so it is read as local midnight, not UTC. */
+export function parseDate(value: string): Date {
+  return new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value);
+}
+
 export function formatDate(value: string | null | undefined, options: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }): string {
   if (!value) return "—";
-  return new Intl.DateTimeFormat(undefined, options).format(new Date(value));
+  return new Intl.DateTimeFormat(undefined, options).format(parseDate(value));
 }
 
 export function formatDateTime(value: string | null | undefined): string {

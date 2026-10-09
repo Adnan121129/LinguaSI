@@ -12,6 +12,12 @@ import { BANDS, LEVELS, TOPICS } from "@/lib/constants";
 import type { User } from "@/lib/types";
 import { cn, titleCase } from "@/lib/utils";
 
+/** Today's date as YYYY-MM-DD in the learner's own timezone (toISOString would give the UTC date). */
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 type Form = {
   goal: "ielts" | "general";
   ielts_module: "academic" | "general_training";
@@ -121,7 +127,7 @@ export default function OnboardingPage() {
                   </Select>
                 </Field>
                 <Field label="Test date (optional)" htmlFor="date">
-                  <Input id="date" type="date" value={form.test_date} min={new Date().toISOString().slice(0, 10)} onChange={(e) => set("test_date", e.target.value)} />
+                  <Input id="date" type="date" value={form.test_date} min={localToday()} onChange={(e) => set("test_date", e.target.value)} />
                 </Field>
               </div>
             )}

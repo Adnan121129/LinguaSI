@@ -78,3 +78,18 @@ def test_error_responses_include_request_id(client):
     r = client.get("/me")
     assert r.json()["error"]["request_id"]
     assert r.headers["X-Request-ID"] == r.json()["error"]["request_id"]
+
+
+def test_signed_out_token_is_refused_without_ending_other_sessions(client, learner):
+    phone = client.post("/auth/login", json={"email": learner.email, "password": learner.password}).json()
+    assert client.post("/auth/logout", json={"refresh_token": phone["refresh_token"]}).status_code == 200
+    stale = client.post("/auth/refresh", json={"refresh_token": phone["refresh_token"]})
+    assert stale.status_code == 401 and stale.json()["error"]["code"] == "session_revoked"
+    # Not treated as token theft: the learner's other session still works.
+    assert client.post("/auth/refresh", json={"refresh_token": learner.tokens["refresh_token"]}).status_code == 200
+
+
+def test_access_tokens_name_their_session(learner):
+    from app.core.security import decode_access_token
+
+    assert isinstance(decode_access_token(learner.tokens["access_token"])["sid"], int)

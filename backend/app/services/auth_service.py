@@ -34,20 +34,22 @@ class IssuedTokens:
     access_token: str
     refresh_token: str
     expires_in: int
+    session_id: int
 
 
 def _issue_tokens(db: Session, user: User, user_agent: str | None) -> IssuedTokens:
-    access_token, expires_in = create_access_token(user.id, user.role)
     refresh_token = new_refresh_token()
-    db.add(
-        AuthSession(
-            user_id=user.id,
-            token_hash=hash_token(refresh_token),
-            expires_at=utcnow() + timedelta(days=settings.refresh_token_days),
-            user_agent=(user_agent or "")[:255] or None,
-        )
+    session = AuthSession(
+        user_id=user.id,
+        token_hash=hash_token(refresh_token),
+        expires_at=utcnow() + timedelta(days=settings.refresh_token_days),
+        user_agent=(user_agent or "")[:255] or None,
     )
-    return IssuedTokens(access_token, refresh_token, expires_in)
+    db.add(session)
+    db.flush()
+    # The access token names its refresh session ("sid") so account actions can tell this device apart.
+    access_token, expires_in = create_access_token(user.id, user.role, {"sid": session.id})
+    return IssuedTokens(access_token, refresh_token, expires_in, session.id)
 
 
 def register(db: Session, *, email: str, password: str, name: str, user_agent: str | None) -> tuple[User, IssuedTokens]:
@@ -96,6 +98,9 @@ def refresh(db: Session, *, refresh_token: str, user_agent: str | None) -> tuple
         raise AuthError("Your session has expired. Please sign in again.", code="invalid_refresh_token")
     now = utcnow()
     if session.revoked_at is not None:
+        if session.replaced_by_id is None:
+            # Ended deliberately (sign-out, password change, deactivation): just refuse it.
+            raise AuthError("Your session has ended. Please sign in again.", code="session_revoked")
         # A rotated token was presented again: treat as theft and end every session for this user.
         db.execute(update(AuthSession).where(AuthSession.user_id == session.user_id, AuthSession.revoked_at.is_(None)).values(revoked_at=now))
         db.commit()
@@ -107,11 +112,9 @@ def refresh(db: Session, *, refresh_token: str, user_agent: str | None) -> tuple
     if user is None or not user.is_active:
         raise AuthError()
     tokens = _issue_tokens(db, user, user_agent)
-    db.flush()
-    new_session = db.scalar(select(AuthSession).where(AuthSession.token_hash == hash_token(tokens.refresh_token)))
     session.revoked_at = now
     session.last_used_at = now
-    session.replaced_by_id = new_session.id if new_session else None
+    session.replaced_by_id = tokens.session_id
     db.commit()
     return user, tokens
 
@@ -127,9 +130,13 @@ def logout(db: Session, *, refresh_token: str | None, user: User | None = None) 
     db.commit()
 
 
-def change_password(db: Session, user: User, *, current_password: str, new_password: str) -> None:
+def change_password(db: Session, user: User, *, current_password: str, new_password: str, keep_session_id: int | None = None) -> None:
+    """Set a new password and sign out every other device. The session making the change stays signed in."""
     if not verify_password(current_password, user.password_hash):
         raise AuthError("Your current password is incorrect.", code="invalid_credentials")
     user.password_hash = hash_password(new_password)
-    db.execute(update(AuthSession).where(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None)).values(revoked_at=utcnow()))
+    others = update(AuthSession).where(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None))
+    if keep_session_id is not None:
+        others = others.where(AuthSession.id != keep_session_id)
+    db.execute(others.values(revoked_at=utcnow()))
     db.commit()
