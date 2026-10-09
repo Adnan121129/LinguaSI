@@ -24,8 +24,11 @@ PROVIDER_DEFAULT_MODELS: dict[str, dict[str, str]] = {
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(".env", "../.env"),
+        # The repository's root .env, then backend/.env (which wins). Real environment variables beat both.
+        env_file=("../.env", ".env"),
         env_file_encoding="utf-8",
+        # An empty value (KEY=) means "use the default", so the .env templates can list every key.
+        env_ignore_empty=True,
         extra="ignore",
         case_sensitive=False,
     )
@@ -35,7 +38,6 @@ class Settings(BaseSettings):
     environment: Literal["development", "test", "production"] = "development"
     debug: bool = False
     log_level: str = "INFO"
-    public_api_url: str = "http://localhost:8000"
 
     # --- Database ----------------------------------------------------------
     database_url: str = "postgresql+psycopg://linguasi:linguasi@localhost:5432/linguasi"
