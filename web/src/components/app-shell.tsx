@@ -27,7 +27,8 @@ import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge, PageSkeleton } from "@/components/ui";
 import { useMe } from "@/hooks/use-me";
-import { api, leaveSession, request } from "@/lib/api";
+import { api, request } from "@/lib/api";
+import { leaveSession } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type NavItem = { href: string; label: string; icon: typeof LayoutDashboard };
