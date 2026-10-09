@@ -91,4 +91,6 @@ def history(pagination: Pagination = Depends(), user: User = Depends(get_current
 @router.get("/audio/{transcript_id}", summary="Replay a stored recording")
 def audio(transcript_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Response:
     data, mime = speaking_service.audio(db, user, transcript_id)
-    return Response(content=data, media_type=mime, headers={"Cache-Control": "private, max-age=3600"})
+    # Only ever served as audio, whatever type the upload claimed.
+    media_type = mime if mime.startswith("audio/") else "application/octet-stream"
+    return Response(content=data, media_type=media_type, headers={"Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff"})

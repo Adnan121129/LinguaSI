@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import time
 import uuid
 
@@ -26,6 +27,9 @@ def configure_logging() -> None:
     logging.getLogger("httpx2").setLevel(logging.WARNING)
 
 
+_REQUEST_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
+
+
 class RequestContextMiddleware(BaseHTTPMiddleware):
     """Assigns a request id, measures latency and writes one structured access-log line per request.
 
@@ -34,7 +38,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next) -> Response:
-        request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:16]
+        supplied = request.headers.get("x-request-id", "")
+        # A client's request ID is echoed into logs, so only short, plain IDs are accepted.
+        request_id = supplied if _REQUEST_ID.fullmatch(supplied) else uuid.uuid4().hex[:16]
         request.state.request_id = request_id
         started = time.perf_counter()
         response = await call_next(request)

@@ -84,6 +84,15 @@ def test_recordings_are_stored_and_replayable_by_owner_only(onboarded, make_lear
     assert other.get(f"/speaking/audio/{transcript['id']}").status_code == 404
 
 
+def test_recordings_are_only_ever_served_as_audio(onboarded):
+    start = onboarded.post("/speaking/session/start", json={"mode": "part1"}).json()
+    files = {"audio": ("answer.html", b"<script>alert(1)</script>", "text/html")}
+    r = onboarded.post("/speaking/session/respond", data={"session_id": str(start["session"]["id"]), "transcript": SPEAKING_ANSWER}, files=files)
+    assert r.status_code == 200
+    audio = onboarded.get(f"/speaking/audio/{r.json()['transcript']['id']}")
+    assert audio.headers["content-type"].startswith("audio/") and audio.headers["x-content-type-options"] == "nosniff"
+
+
 def test_oversized_recordings_are_rejected(onboarded, monkeypatch):
     monkeypatch.setattr(settings, "max_audio_upload_mb", 1)
     start = onboarded.post("/speaking/session/start", json={"mode": "part1"}).json()
