@@ -5,8 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Profile, User } from "@/lib/types";
 
-export function useMe() {
-  return useQuery({ queryKey: ["me"], queryFn: () => api<User>("/me"), staleTime: 60_000 });
+/** The signed-in learner. Pass enabled: false on pages that signed-out visitors can see. */
+export function useMe({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: ["me"], queryFn: () => api<User>("/me"), staleTime: 60_000, enabled });
 }
 
 export function useUpdateProfile() {

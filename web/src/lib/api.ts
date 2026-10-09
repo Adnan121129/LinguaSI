@@ -28,10 +28,15 @@ type RequestOptions = {
 
 const NETWORK_MESSAGE = "You appear to be offline or the server can't be reached. Please check your connection and try again.";
 
+/** Pages anyone may view signed out; a 401 there must not bounce the visitor to the sign-in page. */
+function isPublicPage(pathname: string) {
+  return pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/register");
+}
+
 function redirectToLogin() {
   if (typeof window === "undefined") return;
   const here = `${window.location.pathname}${window.location.search}`;
-  if (!window.location.pathname.startsWith("/login")) leaveSession(`/login?next=${encodeURIComponent(here)}`);
+  if (!isPublicPage(window.location.pathname)) leaveSession(`/login?next=${encodeURIComponent(here)}`);
 }
 
 async function parseError(response: Response): Promise<ApiError> {
