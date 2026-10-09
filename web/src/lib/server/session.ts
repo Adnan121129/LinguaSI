@@ -39,6 +39,14 @@ export function forwardedHeaders(request: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {};
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) headers["x-forwarded-for"] = forwardedFor;
+  // With the shared secret, the API accepts the learner address we report even though this server's
+  // own address changes (as on Vercel). The right-most entry is the one our own proxy added.
+  const secret = process.env.PROXY_SHARED_SECRET;
+  const learnerAddress = forwardedFor?.split(",").at(-1)?.trim();
+  if (secret && learnerAddress) {
+    headers["x-linguasi-proxy-secret"] = secret;
+    headers["x-linguasi-client-ip"] = learnerAddress;
+  }
   const userAgent = request.headers.get("user-agent");
   if (userAgent) headers["user-agent"] = userAgent;
   const requestId = request.headers.get("x-request-id");

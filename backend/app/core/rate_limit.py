@@ -7,6 +7,8 @@ instead so limits are shared across instances.
 
 from __future__ import annotations
 
+import hmac
+import ipaddress
 import logging
 import threading
 import time
@@ -78,12 +80,28 @@ limiter = _build_limiter()
 
 
 def client_ip(request: Request) -> str:
-    """The peer address. X-Forwarded-For is never read here, because any client can forge it.
+    """The address per-IP limits count against. X-Forwarded-For is never read here: any client can forge it.
 
-    Behind a reverse proxy or the web BFF, Uvicorn's proxy-header support rewrites the peer address
-    from X-Forwarded-For only when the immediate peer is listed in FORWARDED_ALLOW_IPS.
+    Two ways to see the learner's own address behind the web BFF or a reverse proxy:
+      * Uvicorn rewrites the peer address from X-Forwarded-For, but only when the immediate peer is
+        listed in FORWARDED_ALLOW_IPS (fixed addresses: Docker Compose, your own proxy).
+      * The web server presents PROXY_SHARED_SECRET and reports the address in X-LinguaSI-Client-IP
+        (for hosts whose addresses change, such as Vercel).
     """
-    return request.client.host if request.client else "unknown"
+    return _vouched_client_ip(request) or (request.client.host if request.client else "unknown")
+
+
+def _vouched_client_ip(request: Request) -> str | None:
+    secret = settings.proxy_shared_secret
+    if not secret:
+        return None
+    presented = request.headers.get("x-linguasi-proxy-secret", "")
+    if not hmac.compare_digest(presented.encode(), secret.encode()):
+        return None
+    try:
+        return str(ipaddress.ip_address(request.headers.get("x-linguasi-client-ip", "").strip()))
+    except ValueError:
+        return None
 
 
 def enforce(key: str, limit: int, window_seconds: int, message: str | None = None) -> None:

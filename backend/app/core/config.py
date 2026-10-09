@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     )
     rate_limit_enabled: bool = True
     redis_url: str | None = None
+    # Shared with the web server. Requests that present it may report the learner's address for
+    # per-IP limits, wherever the web server runs (e.g. on Vercel, whose addresses aren't fixed).
+    proxy_shared_secret: str | None = None
 
     # --- AI ----------------------------------------------------------------
     ai_provider: Literal["mock", "anthropic", "openai", "gemini"] = "mock"
@@ -112,10 +115,21 @@ class Settings(BaseSettings):
             return [item.strip() for item in stripped.split(",") if item.strip()]
         return value
 
+    @field_validator("database_url")
+    @classmethod
+    def _use_psycopg_driver(cls, value: str) -> str:
+        """Hosting providers hand out postgres:// or postgresql:// URLs; SQLAlchemy must be told to use psycopg 3."""
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value[len(prefix) :]
+        return value
+
     @model_validator(mode="after")
     def _check_production(self) -> Settings:
         if self.environment == "production" and (self.jwt_secret == DEFAULT_JWT_SECRET or len(self.jwt_secret) < 32):
             raise ValueError("JWT_SECRET must be set to a random value of at least 32 characters in production")
+        if self.environment == "production" and self.proxy_shared_secret and len(self.proxy_shared_secret) < 32:
+            raise ValueError("PROXY_SHARED_SECRET must be a random value of at least 32 characters in production")
         return self
 
     # --- Derived helpers ---------------------------------------------------
