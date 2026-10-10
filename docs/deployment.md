@@ -54,7 +54,7 @@ ones that matter for a deployment:
 | Setting | Value |
 | --- | --- |
 | `ENVIRONMENT` | `production` (the Docker image sets it). The API refuses to start with the development JWT secret. |
-| `JWT_SECRET` | A random value of at least 32 characters, e.g. `openssl rand -hex 32` |
+| `JWT_SECRET` | A random value of at least 32 characters, e.g. `openssl rand -hex 32` (or `JWT_SECRET_FILE`: the path of a file that holds it) |
 | `DATABASE_URL` | The database URL from step 1 |
 | `AI_MOCK_MODE`, `AI_PROVIDER`, `<PROVIDER>_API_KEY` | Keep mock mode, or `AI_MOCK_MODE=false`, the provider and its key |
 | `STT_PROVIDER`, `TTS_PROVIDER` | `openai` for server speech recognition and voices (uses `OPENAI_API_KEY`), otherwise `mock` |
@@ -132,12 +132,11 @@ learner separately, the API must see each learner's own address:
   right-most address the load balancer added. Never use `*`: Uvicorn then takes the left-most
   entry, which the client can set.
 - **The web app** calls the API from its server (the browser never talks to the API). Either:
-  - **The web server has fixed addresses** (Docker Compose, your own server): add them to
-    `FORWARDED_ALLOW_IPS`. The Compose file does this for you.
-  - **The web server's addresses change** (Vercel, serverless): set the same random
+  - **The web server has fixed addresses** (your own server): add them to `FORWARDED_ALLOW_IPS`.
+  - **The web server's addresses change** (Vercel, serverless, Docker Compose): set the same random
     `PROXY_SHARED_SECRET` (32+ characters) on the API and the web app. The web server then reports
     each learner's address in `X-LinguaSI-Client-IP`, and the API accepts it only from requests
-    carrying the secret.
+    carrying the secret. With Docker Compose, put it in `.env`; the Compose file passes it to both.
 - Run the web server behind a proxy or platform that sets `X-Forwarded-For` (Vercel, Railway,
   Render, nginx and Caddy all do). Exposed directly on the internet, it can't tell a real client
   address from one the client wrote itself.
@@ -158,19 +157,24 @@ See [`mobile/README.md`](../mobile/README.md) for local development builds.
 
 ## 6. One server with Docker Compose
 
-`docker-compose.yml` runs PostgreSQL, the API and the web app on one machine:
+`docker-compose.yml` runs PostgreSQL, the API, the web app and a browser preview of the mobile app
+on one machine. It needs no configuration ([GETTING-STARTED.md](../GETTING-STARTED.md) covers running
+it on a personal computer); for a server, create `.env` from `.env.example` first:
 
 ```sh
-cp .env.example .env    # set JWT_SECRET (openssl rand -hex 32); add AI keys if you have them
-docker compose up -d --build
+cp .env.example .env    # AI keys, COOKIE_SECURE=true behind HTTPS, PROXY_SHARED_SECRET, ports
+docker compose up -d --build --wait
 docker compose exec api python -m app.cli create-admin --email you@example.com
 ```
 
-- Web app on port 3000, API (and `/docs`) on port 8000. For a public server, put a TLS reverse proxy
-  (Caddy, nginx) in front of both and set `COOKIE_SECURE=true` in `.env`.
-- The web container has a fixed address (`10.212.0.10`) that the API trusts for `X-Forwarded-For`;
-  direct API callers can't choose their own address. If `10.212.0.0/24` is already used on your
-  machine, change the subnet and both addresses in `docker-compose.yml`.
+- Web app on port 3000, API (and `/docs`) on port 8000, mobile app preview on port 8081 (change
+  them with `WEB_PORT`, `API_PORT`, `MOBILE_PORT`). For a public server, put a TLS reverse proxy
+  (Caddy, nginx) in front and set `COOKIE_SECURE=true` in `.env`. The mobile preview is compiled
+  against `http://localhost:API_PORT`, so it is for local use; phones use the EAS builds (section 5).
+- Without `JWT_SECRET` the API creates a random secret on its first start and keeps it in the
+  `recordings` volume (`JWT_SECRET_FILE`). Set `JWT_SECRET` to manage it yourself.
+- For per-learner rate limits behind the reverse proxy, set `PROXY_SHARED_SECRET` (section 4), and
+  `FORWARDED_ALLOW_IPS` to the proxy's address if mobile apps call the API through it.
 - Data lives in the `db-data` and `recordings` volumes. Back up the database with
   `docker compose exec db pg_dump -U linguasi linguasi > backup.sql`.
 
@@ -190,7 +194,7 @@ cd web && E2E_BASE_URL=https://staging.example.com npm run e2e
 
 ## Production checklist
 
-- [ ] `ENVIRONMENT=production` and a random `JWT_SECRET`
+- [ ] `ENVIRONMENT=production` and a random `JWT_SECRET` (or `JWT_SECRET_FILE`)
 - [ ] HTTPS for the web app and the API; `COOKIE_SECURE` not set to `false`
 - [ ] AI keys only in the API's environment; `AI_MOCK_MODE=false` only with provider credits in place
 - [ ] `AI_USER_HOURLY_LIMIT` suits your budget; `AI_LOG_CONTENT=false` (the default)

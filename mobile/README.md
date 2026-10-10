@@ -43,6 +43,9 @@ npx expo start --go     # open in Expo Go instead of a development build
 npx expo start --web    # browser preview for development only (the production web client is ../web)
 ```
 
+Without Node.js: the root Docker setup (`start-windows.bat` / `sh start.sh`) also serves a browser
+preview of this app at http://localhost:8081, built by [`Dockerfile`](Dockerfile).
+
 All native modules the app uses (audio, speech, secure storage, SVG) are included in Expo Go, so Expo
 Go works for trying the app. For day-to-day development and release testing use a development build:
 

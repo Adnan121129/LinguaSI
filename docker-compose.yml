@@ -1,11 +1,19 @@
-# LinguaSI on one machine: PostgreSQL, the API and the web app.
+# LinguaSI on your computer: PostgreSQL, the API, the website and a web preview of the mobile app.
 #
-#   cp .env.example .env        # then set JWT_SECRET in .env (openssl rand -hex 32)
-#   docker compose up --build
+#   Windows: double-click start-windows.bat      Mac / Linux: sh start.sh
+#   (or run `docker compose up --build` yourself; GETTING-STARTED.md explains every step)
 #
-# Web app: http://localhost:3000 · API and interactive docs: http://localhost:8000/docs
-# Demo learner: docker compose exec api python -m app.cli demo
-# Every API setting (backend/.env.example) can be added to .env; it is passed to the API container.
+# Nothing has to be configured first. On its first start the API creates a random session secret
+# and keeps it in a Docker volume.
+#
+#   Website:              http://localhost:3000
+#   Mobile app preview:   http://localhost:8081
+#   API documentation:    http://localhost:8000/docs
+#   Demo learner:         docker compose exec api python -m app.cli demo --if-missing
+#
+# Optional settings go in a file named .env next to this one (see .env.example): real AI keys, your
+# own JWT_SECRET, or WEB_PORT / API_PORT / MOBILE_PORT when another program already uses a port.
+# Every API setting in backend/.env.example can be added to .env; it is passed to the API.
 name: linguasi
 
 services:
@@ -21,7 +29,8 @@ services:
       test: ["CMD-SHELL", "pg_isready -U linguasi -d linguasi"]
       interval: 5s
       timeout: 5s
-      retries: 20
+      retries: 30
+      start_period: 30s
     restart: unless-stopped
 
   api:
@@ -36,23 +45,38 @@ services:
     environment:
       ENVIRONMENT: production
       DATABASE_URL: postgresql+psycopg://linguasi:${POSTGRES_PASSWORD:-linguasi}@db:5432/linguasi
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env to a random value, e.g. the output of openssl rand -hex 32}
+      # Without a JWT_SECRET, the API uses its own random secret from JWT_SECRET_FILE. The command
+      # below creates it on the first start, in the storage volume, so sign-ins survive restarts.
+      JWT_SECRET: ${JWT_SECRET:-}
+      JWT_SECRET_FILE: /app/backend/storage/.jwt-secret
+      # Optional, for a shared server behind a reverse proxy: the same random value (32+ characters)
+      # on the API and the web server lets the API rate-limit each learner's own address.
+      PROXY_SHARED_SECRET: ${PROXY_SHARED_SECRET:-}
+      # The browser addresses of the website and the mobile app preview.
+      CORS_ORIGINS: http://localhost:${WEB_PORT:-3000},http://127.0.0.1:${WEB_PORT:-3000},http://localhost:${MOBILE_PORT:-8081},http://127.0.0.1:${MOBILE_PORT:-8081}
       STORAGE_LOCAL_DIR: /app/backend/storage
-      # The web server forwards each learner's address; X-Forwarded-For is trusted from it alone.
-      FORWARDED_ALLOW_IPS: 10.212.0.10
+    # Create the session secret if there is none yet, apply database migrations, then serve.
+    command:
+      - sh
+      - -c
+      - |
+        if [ -z "$${JWT_SECRET}" ] && [ ! -s "$${JWT_SECRET_FILE}" ]; then
+          (umask 077 && python -c "import secrets; print(secrets.token_hex(32))" > "$${JWT_SECRET_FILE}")
+        fi
+        alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips "$${FORWARDED_ALLOW_IPS}"
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     volumes:
       - recordings:/app/backend/storage
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
       interval: 10s
       timeout: 5s
-      retries: 12
-      start_period: 20s
+      retries: 30
+      start_period: 60s
     restart: unless-stopped
 
   web:
@@ -64,25 +88,39 @@ services:
       BACKEND_URL: http://api:8000
       # Session cookies are sent over HTTPS only unless this is false. Use true behind HTTPS.
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      PROXY_SHARED_SECRET: ${PROXY_SHARED_SECRET:-}
     depends_on:
       api:
         condition: service_healthy
     ports:
-      - "3000:3000"
-    networks:
-      default:
-        ipv4_address: 10.212.0.10
+      - "${WEB_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
     restart: unless-stopped
 
-networks:
-  default:
-    ipam:
-      config:
-        # A fixed address for the web server (trusted by the API above); other containers get
-        # addresses from ip_range, so they never take it. Change all three if 10.212.0.0/24 is in use.
-        - subnet: 10.212.0.0/24
-          ip_range: 10.212.0.128/25
+  # The mobile app's screens in a browser (the Expo web build). The phone apps themselves are built
+  # with Expo; see mobile/README.md.
+  mobile:
+    build:
+      context: mobile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-slim}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
+        # Where the browser reaches the API. It is compiled into the app and is not a secret.
+        EXPO_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+    ports:
+      - "${MOBILE_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    restart: unless-stopped
 
 volumes:
   db-data:
+  # Speaking recordings and the API's generated session secret.
   recordings:

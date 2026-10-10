@@ -1,0 +1,93 @@
+name: Docker
+
+# The no-setup start: start.sh with real Docker on Linux, exactly as a learner runs it, and the start
+# scripts' own logic on Windows and macOS against a stand-in docker command (those runners can't run
+# the Linux containers).
+on:
+  push:
+    paths:
+      - docker-compose.yml
+      - start.sh
+      - stop.sh
+      - start-windows.bat
+      - stop-windows.bat
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - mobile/docker/**
+      - backend/requirements.txt
+      - backend/app/cli.py
+      - backend/app/core/config.py
+      - web/package-lock.json
+      - mobile/package-lock.json
+      - .github/scripts/**
+      - .github/workflows/docker.yml
+  pull_request:
+    paths:
+      - docker-compose.yml
+      - start.sh
+      - stop.sh
+      - start-windows.bat
+      - stop-windows.bat
+      - "**/Dockerfile"
+      - "**/.dockerignore"
+      - mobile/docker/**
+      - backend/requirements.txt
+      - backend/app/cli.py
+      - backend/app/core/config.py
+      - web/package-lock.json
+      - mobile/package-lock.json
+      - .github/scripts/**
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+jobs:
+  compose:
+    name: start.sh with Docker (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: start.sh and stop.sh with a stand-in docker
+        run: sh .github/scripts/test-start-sh.sh
+      - name: Start LinguaSI the way a learner does
+        run: sh start.sh
+      - name: The website, the API, the mobile app preview and the demo learner work
+        run: |
+          curl -fsS http://localhost:8000/health/ready
+          curl -fsS -o /dev/null http://localhost:3000/login
+          curl -fsS -o /dev/null http://localhost:8081/
+          curl -fsS -o /dev/null http://localhost:8081/writing/1
+          curl -fsS -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" \
+            -d '{"email": "demo@linguasi.app", "password": "LinguaSI-demo-2026"}' | grep -q access_token
+          curl -fsS -o /dev/null -D - -X OPTIONS http://localhost:8000/auth/login \
+            -H "Origin: http://localhost:8081" -H "Access-Control-Request-Method: POST" \
+            | grep -qi "access-control-allow-origin: http://localhost:8081"
+      - name: A restart keeps the data and the session secret
+        run: |
+          before=$(docker compose exec -T api md5sum /app/backend/storage/.jwt-secret)
+          sh stop.sh
+          sh start.sh | tee restart.log
+          grep -q "The demo learner already exists" restart.log
+          [ "$before" = "$(docker compose exec -T api md5sum /app/backend/storage/.jwt-secret)" ]
+      - name: Logs
+        if: failure()
+        run: docker compose logs --tail 200
+
+  windows-scripts:
+    name: start-windows.bat (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: start-windows.bat and stop-windows.bat with a stand-in docker
+        shell: powershell
+        run: .github/scripts/test-start-windows.ps1
+
+  macos-scripts:
+    name: start.sh (macOS)
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: start.sh and stop.sh with a stand-in docker
+        run: sh .github/scripts/test-start-sh.sh

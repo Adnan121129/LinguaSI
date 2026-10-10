@@ -2,7 +2,7 @@
 
 python -m app.cli seed                      # load / refresh curated content (idempotent)
 python -m app.cli create-admin --email you@example.com --name "Your Name"
-python -m app.cli demo [--reset] [--days 28] # create the demo learner with weeks of history
+python -m app.cli demo [--reset | --if-missing] [--days 28]  # the demo learner, with weeks of history
 python -m app.cli status                    # configuration and database summary
 """
 
@@ -22,7 +22,7 @@ from app.core.errors import AppError
 from app.core.logging import configure_logging
 from app.core.security import hash_password
 from app.models import Profile, User, VocabularyItem
-from app.seed.demo import create_demo_learner
+from app.seed.demo import create_demo_learner, demo_content
 from app.seed.loader import load_all
 
 _EMAIL = TypeAdapter(EmailStr)
@@ -70,6 +70,10 @@ def cmd_create_admin(args: argparse.Namespace) -> int:
 
 def cmd_demo(args: argparse.Namespace) -> int:
     with SessionLocal() as db:
+        learner = demo_content()["learner"]
+        if args.if_missing and db.scalar(select(User.id).where(User.email == learner["email"])) is not None:
+            print(f"The demo learner already exists. Sign in with  {learner['email']}  /  {learner['password']}")
+            return 0
         if (db.scalar(select(func.count(VocabularyItem.id))) or 0) == 0:
             load_all(db)
         try:
@@ -112,7 +116,9 @@ def main(argv: list[str] | None = None) -> int:
     admin.add_argument("--password", help="Defaults to $LINGUASI_ADMIN_PASSWORD, otherwise prompts")
     admin.set_defaults(func=cmd_create_admin)
     demo = sub.add_parser("demo", help="Create the demo learner with several weeks of realistic history")
-    demo.add_argument("--reset", action="store_true", help="Delete and recreate the demo learner if it exists")
+    existing = demo.add_mutually_exclusive_group()
+    existing.add_argument("--reset", action="store_true", help="Delete and recreate the demo learner if it exists")
+    existing.add_argument("--if-missing", action="store_true", help="Do nothing if the demo learner already exists")
     demo.add_argument("--days", type=int, default=28, choices=range(7, 61), metavar="7-60")
     demo.set_defaults(func=cmd_demo)
     sub.add_parser("status", help="Show configuration and database status").set_defaults(func=cmd_status)

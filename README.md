@@ -11,6 +11,11 @@ every recommendation it makes.
 > and LinguaSI is not affiliated with or endorsed by IELTS, the British Council, IDP or Cambridge
 > University Press & Assessment. All learning content is original.
 
+**Just want to run it?** Install [Docker Desktop](https://www.docker.com/products/docker-desktop/),
+download this repository, then double-click **`start-windows.bat`** (Windows) or run **`sh start.sh`**
+(Mac, Linux). [GETTING-STARTED.md](GETTING-STARTED.md) walks through every step and every common
+problem.
+
 ## Contents
 
 1. [Overview](#1-overview)
@@ -176,7 +181,7 @@ Each part has a commented template; copy it and adjust.
 | [`backend/.env.example`](backend/.env.example) | API (every setting) | `DATABASE_URL`, `JWT_SECRET`, `AI_PROVIDER`, `AI_MOCK_MODE`, `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY`, `AI_MODEL_FAST`, `AI_MODEL_STRONG`, `STT_PROVIDER`, `TTS_PROVIDER`, `STORAGE_BACKEND`, `CORS_ORIGINS`, `ADMIN_EMAILS`, `PROXY_SHARED_SECRET` |
 | [`web/.env.example`](web/.env.example) | Web app server | `BACKEND_URL`, `COOKIE_SECURE`, `PROXY_SHARED_SECRET` |
 | [`mobile/.env.example`](mobile/.env.example) | Mobile app | `EXPO_PUBLIC_API_URL` (public by design) |
-| [`.env.example`](.env.example) | Docker Compose | `JWT_SECRET`, `POSTGRES_PASSWORD`, AI and speech settings, `COOKIE_SECURE` |
+| [`.env.example`](.env.example) | Docker Compose (optional) | `WEB_PORT`, `API_PORT`, `MOBILE_PORT`, AI and speech settings, `JWT_SECRET` (generated when empty), `PROXY_SHARED_SECRET` |
 
 The API reads real environment variables first, then `backend/.env`, then the repository's root
 `.env`. An empty value (`KEY=`) means "use the default". AI keys belong only in the API's
@@ -184,15 +189,25 @@ environment, never in the web or mobile app.
 
 ## 9. Installation
 
-**Quickest: Docker Compose** (Docker with Compose v2.24 or later)
+**Quickest: Docker** (Docker Desktop, or Docker Engine with Compose v2.24 or later). Nothing to
+configure: the start scripts build and start PostgreSQL, the API, the website and a browser preview
+of the mobile app, create the demo learner and open the website.
 
 ```sh
-cp .env.example .env              # then set JWT_SECRET to the output of: openssl rand -hex 32
-docker compose up --build
-docker compose exec api python -m app.cli demo    # optional demo learner
+start-windows.bat     # Windows: double-click it
+sh start.sh           # Mac and Linux
 ```
 
-Open http://localhost:3000. The API and its interactive documentation are at http://localhost:8000/docs.
+| | |
+| --- | --- |
+| Website | http://localhost:3000 |
+| Mobile app preview | http://localhost:8081 |
+| API and interactive docs | http://localhost:8000/docs |
+| Demo learner | `demo@linguasi.app` / `LinguaSI-demo-2026` |
+
+Stop with `stop-windows.bat` or `sh stop.sh` (data is kept). The scripts only wrap
+`docker compose up --build --wait` and `python -m app.cli demo --if-missing`, so plain Compose
+commands work too. Step-by-step instructions and troubleshooting: [GETTING-STARTED.md](GETTING-STARTED.md).
 
 **Local development** needs Python 3.12+, Node.js 22 and PostgreSQL 16.
 
@@ -288,7 +303,7 @@ Errors always have the shape `{"error": {"code", "message", "details?", "request
 
 | Suite | Command | What it covers |
 | --- | --- | --- |
-| API | `cd backend && pytest` | 157 tests: unit (grammar rules, essay and speech metrics, scoring, SRS, difficulty, security, settings, AI client), API (every module, authorization, sessions, validation, AI outages, rate limits), integration (full learner journey, streaks across days, cross-skill effects, concurrent first-use rows, demo generator, migration drift). Needs PostgreSQL: the suite creates `linguasi_test` on localhost (or uses `TEST_DATABASE_URL`) and wipes it on every run, so never point it at real data. |
+| API | `cd backend && pytest` | 159 tests: unit (grammar rules, essay and speech metrics, scoring, SRS, difficulty, security, settings, AI client), API (every module, authorization, sessions, validation, AI outages, rate limits), integration (full learner journey, streaks across days, cross-skill effects, concurrent first-use rows, demo generator and command, migration drift). Needs PostgreSQL: the suite creates `linguasi_test` on localhost (or uses `TEST_DATABASE_URL`) and wipes it on every run, so never point it at real data. |
 | API lint | `cd backend && ruff check app tests && ruff format --check app tests` | Style and common bugs |
 | Web | `cd web && npm run lint && npm run typecheck && npm test` | 44 Vitest tests: API client and session handling, server-side session refresh and forwarded headers, formatting, essay highlighting, practice runner, toasts, question forms, charts |
 | Mobile | `cd mobile && npm run typecheck && npm run lint && npm test` | 20 Jest tests: API client and token refresh, validation, routes, pause detection, practice runner, recorder |

@@ -20,6 +20,23 @@ def test_hosting_provider_database_urls_use_the_psycopg_driver():
     assert Settings(database_url="postgresql+psycopg://u:p@h/db").database_url == "postgresql+psycopg://u:p@h/db"
 
 
+def test_the_session_secret_can_come_from_a_file(tmp_path, monkeypatch):
+    monkeypatch.delenv("JWT_SECRET", raising=False)
+    secret_file = tmp_path / "jwt-secret"
+    secret_file.write_text("f" * 64 + "\n")
+    monkeypatch.setenv("JWT_SECRET_FILE", str(secret_file))
+    assert Settings(_env_file=None, environment="production").jwt_secret == "f" * 64
+    # JWT_SECRET wins over the file.
+    assert Settings(_env_file=None, jwt_secret="j" * 40).jwt_secret == "j" * 40
+    # A missing or empty file is no secret: production refuses to start without one.
+    secret_file.write_text("")
+    with pytest.raises(ValidationError, match="JWT_SECRET"):
+        Settings(_env_file=None, environment="production")
+    monkeypatch.setenv("JWT_SECRET_FILE", str(tmp_path / "missing"))
+    with pytest.raises(ValidationError, match="JWT_SECRET"):
+        Settings(_env_file=None, environment="production")
+
+
 def test_production_requires_a_long_proxy_secret():
     with pytest.raises(ValidationError, match="PROXY_SHARED_SECRET"):
         Settings(environment="production", jwt_secret="j" * 40, proxy_shared_secret="short")

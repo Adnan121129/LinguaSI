@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
-from typing import Annotated, Literal
+from pathlib import Path
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -47,6 +48,9 @@ class Settings(BaseSettings):
 
     # --- Auth --------------------------------------------------------------
     jwt_secret: str = DEFAULT_JWT_SECRET
+    # Or a file that holds the secret: a Docker secret, or the one docker-compose.yml creates on the
+    # first start. JWT_SECRET wins when both are set.
+    jwt_secret_file: str | None = None
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 30
     refresh_token_days: int = 30
@@ -124,10 +128,20 @@ class Settings(BaseSettings):
                 return "postgresql+psycopg://" + value[len(prefix) :]
         return value
 
+    @model_validator(mode="before")
+    @classmethod
+    def _read_jwt_secret_file(cls, data: Any) -> Any:
+        if isinstance(data, dict) and not data.get("jwt_secret") and data.get("jwt_secret_file"):
+            path = Path(data["jwt_secret_file"])
+            secret = path.read_text(encoding="utf-8").strip() if path.is_file() else ""
+            if secret:
+                return {**data, "jwt_secret": secret}
+        return data
+
     @model_validator(mode="after")
     def _check_production(self) -> Settings:
         if self.environment == "production" and (self.jwt_secret == DEFAULT_JWT_SECRET or len(self.jwt_secret) < 32):
-            raise ValueError("JWT_SECRET must be set to a random value of at least 32 characters in production")
+            raise ValueError("JWT_SECRET (or JWT_SECRET_FILE) must be set to a random value of at least 32 characters in production")
         if self.environment == "production" and self.proxy_shared_secret and len(self.proxy_shared_secret) < 32:
             raise ValueError("PROXY_SHARED_SECRET must be a random value of at least 32 characters in production")
         return self

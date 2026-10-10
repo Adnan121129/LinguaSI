@@ -1,0 +1,5 @@
+# Line endings that work on every computer. Shell scripts, Dockerfiles and settings files keep LF
+# even when Git for Windows checks them out; the Windows batch files are stored with the CRLF line
+# endings cmd.exe expects, and Git leaves them unchanged.
+* text=auto eol=lf
+*.bat -text
