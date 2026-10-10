@@ -12,7 +12,8 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+# public/ holds optional static files and may be absent (Git keeps no empty folders).
+RUN mkdir -p public && npm run build
 
 FROM ${NODE_IMAGE} AS run
 WORKDIR /app
