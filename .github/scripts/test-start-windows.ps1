@@ -32,9 +32,12 @@ function New-Scenario([string]$name, [string]$folder = $name) {
 }
 
 function Invoke-Bat([string]$name) {
+    # Wait for the script alone: Start-Process -Wait would also wait for the browser it opens.
     $process = Start-Process -FilePath "cmd.exe" -ArgumentList "/d", "/c", $name -WorkingDirectory $script:dir `
         -RedirectStandardInput $stdin -RedirectStandardOutput "$work\out.txt" -RedirectStandardError "$work\err.txt" `
-        -NoNewWindow -Wait -PassThru
+        -NoNewWindow -PassThru
+    $null = $process.Handle  # keeps the exit code available after the process ends
+    if (-not $process.WaitForExit(120000)) { $process.Kill(); throw "$name did not finish within two minutes" }
     $script:code = $process.ExitCode
     $script:out = "$(Get-Content -Raw "$work\out.txt")$(Get-Content -Raw "$work\err.txt")"
 }

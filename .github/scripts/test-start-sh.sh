@@ -75,7 +75,11 @@ expect 0 "Mobile app preview:  http://localhost:8181"
 scenario busy-port
 python3 -m http.server 3000 --bind 127.0.0.1 > /dev/null 2>&1 &
 server=$!
-sleep 2
+tries=0
+until curl -s -o /dev/null -m 2 http://127.0.0.1:3000/ || [ "$tries" -ge 30 ]; do
+  tries=$((tries + 1))
+  sleep 1
+done
 run start.sh
 kill "$server"
 expect 1 "Port 3000 is already used by another program."
