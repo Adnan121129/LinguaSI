@@ -6,7 +6,7 @@ import { BandValue, CriterionBar } from "@/components/band";
 import { Badge, Card, CardBody, CardHeader } from "@/components/ui";
 import { mediaUrl } from "@/lib/api";
 import type { SpeakingSession } from "@/lib/types";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, titleCase } from "@/lib/utils";
 
 function Bullets({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
@@ -62,7 +62,7 @@ export function SpeakingEvaluationView({ session }: { session: SpeakingSession }
             <dl className="grid grid-cols-2 gap-3 text-sm">
               {[
                 ["Speaking speed", metrics.avg_wpm ? `${Math.round(Number(metrics.avg_wpm))} words/min` : "—"],
-                ["Hesitation", ev.hesitation.level],
+                ["Hesitation", titleCase(ev.hesitation.level)],
                 [ev.hesitation.measured ? "Pauses (measured)" : "Pauses (estimated)", `${ev.hesitation.pauses} · ${ev.hesitation.long_pauses} long`],
                 ["Filler words", `${ev.fillers.per_minute}/min`],
                 ["Developed answers", metrics.developed_ratio !== undefined && metrics.developed_ratio !== null ? `${Math.round(Number(metrics.developed_ratio) * 100)}%` : "—"],
@@ -70,7 +70,7 @@ export function SpeakingEvaluationView({ session }: { session: SpeakingSession }
               ].map(([label, value]) => (
                 <div key={String(label)} className="rounded-xl bg-muted p-3">
                   <dt className="text-xs text-muted-foreground">{label}</dt>
-                  <dd className="font-semibold capitalize">{String(value)}</dd>
+                  <dd className="font-semibold">{String(value)}</dd>
                 </div>
               ))}
             </dl>

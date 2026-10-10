@@ -6,7 +6,7 @@ import { BandValue, CriterionBar } from "@/components/band";
 import { Badge, Card, Row, Text } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 import type { SpeakingSession } from "@/lib/types";
-import { formatDuration } from "@/lib/utils";
+import { formatDuration, titleCase } from "@/lib/utils";
 
 function Bullets({ title, items }: { title: string; items: string[] }) {
   if (!items.length) return null;
@@ -29,7 +29,7 @@ export function SpeakingEvaluation({ session }: { session: SpeakingSession }) {
   const criteria = ["fluency_coherence", "lexical_resource", "grammatical_range_accuracy", "pronunciation"] as const;
   const measurements: [string, string][] = [
     ["Speaking speed", metrics.avg_wpm ? `${Math.round(Number(metrics.avg_wpm))} words/min` : "—"],
-    ["Hesitation", ev.hesitation.level],
+    ["Hesitation", titleCase(ev.hesitation.level)],
     [ev.hesitation.measured ? "Pauses (measured)" : "Pauses (estimated)", `${ev.hesitation.pauses} · ${ev.hesitation.long_pauses} long`],
     ["Filler words", `${ev.fillers.per_minute}/min`],
     ["Developed answers", metrics.developed_ratio !== undefined && metrics.developed_ratio !== null ? `${Math.round(Number(metrics.developed_ratio) * 100)}%` : "—"],
@@ -73,7 +73,7 @@ export function SpeakingEvaluation({ session }: { session: SpeakingSession }) {
           {measurements.map(([label, value]) => (
             <View key={label} style={{ backgroundColor: colors.muted, borderRadius: 12, padding: 10, minWidth: "47%", flexGrow: 1 }}>
               <Text variant="caption" tone="muted">{label}</Text>
-              <Text weight="600" style={{ textTransform: "capitalize" }}>{value}</Text>
+              <Text weight="600">{value}</Text>
             </View>
           ))}
         </Row>
